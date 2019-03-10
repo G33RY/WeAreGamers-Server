@@ -1,0 +1,34 @@
+{
+    "author_name": "Kattints és hívd meg a barátaidat is!",
+    "author_url": "https://discord.gg/Zu5qzJ5",
+    "author_icon": "https://3yn7uf15sq4l1ivh8t2tfir5-wpengine.netdna-ssl.com/wp-content/uploads/2016/08/Add_user_icon_blue.svg.png",
+    
+    "serverinfo_title": "__**Szerver Információk:**__",
+    "serverinfo": "**🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻**\nA szerveren szabadon használhatod a Bot parancsokat, és ha szeretnél az \nAdmin-októl kérhetsz saját szobát is! A Music Bot használatához a !store parancsot beirva tudod megvenni a rangot hozzá. Pénzt, kereskedéssel, a parancsok használatával és a szerveren való játékkal tudsz keresni.\n __***A szerveren linkeket a Belépő szobába tudod beküldeni máshova nem lehet!***__\n __***A chat spam-elése a szerverről való kitiltással jár!***__\n __***A parancsokat csak a bot-parancsok szobában tudod használni!***__\n**🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹**\n",
+    "szervercmd_title": "__**Szerver Parancsok:**__",
+    "arrows": "__Jelek jelentései:__  [] = Nem muszály megadnod ezt a paramétert || {} = Meg kell adnod ezt a paramétert *(Ne ird oda a jelet!)* \n**🠻🠻🠻🠻🠻 🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻**",
+    
+    "commands": {
+        "help_cmd": "!help",
+        "ping_cmd": "!ping",
+        "store_cmd": "!store [tárgy neve]",
+        "bank_cmd": "!bank",
+        "leaderboard_cmd": "!leaderboard",
+        "suggest_cmd": "!suggest {üzenet}",
+        "serverinfo_cmd": "!serverinfo",
+        "userinfo_cmd": "!userinfo {@felhasználó}",
+        "transfer_cmd": "!transfer {@felhasználó} {mennyiség}"
+    },
+
+    "descriptions": {
+        "help_desc": "Segítség a szerverrel és a botok parancsaival kapcsolatban.",
+        "ping_desc": "Megnézheted a bot válasz idejét a szerverrel.",
+        "store_desc": "Áruház ahol felhasználhatod a pénzedet.",
+        "bank_desc": "bank egyenleged.",
+        "leaderboard_desc": "Nézd meg a szerver 5 leggazdagabb felasználóját!",
+        "suggest_desc": "Ha szeretnél az adminokkal megosztani valami javaslatot/problémát a szerverrel vagy a bot-okkal kapcsolatban, akkor használd egyszerűen ezt parancsot a **javaslatok** szobába és üzenj névtelenül egyszerre az összes elérhető adminnak!",
+        "serverinfo_desc": "Szerver statisztikái.",
+        "userinfo_desc": "Egy felhasználó statisztikái.",
+        "transfer_desc": "Pénz utalás egy felhasználónak. \n**🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹**\n"
+    }    
+}

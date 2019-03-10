@@ -1,0 +1,26 @@
+{
+  "DJ": {
+    "name": "DJ",
+    "type": "Commands",
+    "desc": "**Ezzel a rangal te lehetsz a legjobb DJ a szerveren! Játsz olyan zenét bármikor amilyet csak szeretnél!\n\n**",
+    "price": 500
+  },
+  "channel": {
+    "name": "Privát Szoba",
+    "type": "Commands",
+    "desc": "**Ezzel a rangal te lehetsz a legjobb DJ a szerveren! Játsz olyan zenét bármikor amilyet csak szeretnél!\n\n**",
+    "price": 1000
+  },
+  "Arany": {
+    "name": "Arany",
+    "type": "Items",
+    "desc": "**Szeretnél lenni a szerver leggazdagabb embere? Akkor kereskedj arannyal! A változó ára miatt jót lehet vele nyerni vagy veszteni.\n\n**",
+    "price": 561
+  },
+  "Gyémánt": {
+    "name": "Gyémánt",
+    "type": "Items",
+    "desc": "**Ha szeretsz kockáztatni akkor ez a te tárgyad! Sokkal nagyobbat változik az ára, ezáltal sokkal nagyobbat lehet vele nyerni viszont veszteni is.**",
+    "price": 1845
+  }
+}
