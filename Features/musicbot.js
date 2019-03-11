@@ -112,10 +112,9 @@ module.exports = async function (bot, msg, commands, prefix){
         
         // Play
         if (msg.content.startsWith(prefix + commands[18])) { 
-            console.log(args[0] == null)
             if (!msg.member.voiceChannel) return ErrorMsg("Play Parancs", "Be kell lépned egy szobába!", msg.author.id)
-            if (args[0] == null) return ErrorMsg("Play Parancs", "a Meg kell adnod egy létező YouTube linket!", msg.author.id)
-            if ((!ytdl.validateURL(args[0])) && (TryParse(args[0]) == false)) return ErrorMsg("Play Parancs", "Meg kell adnod egy létező YouTube linket!", msg.author.id)
+            if (args[0] == null) return ErrorMsg("Play Parancs", "Meg kell adnod egy létező YouTube linket vagy egy Zene számát a Lejátszási Listádból!", msg.author.id)
+            if ((!ytdl.validateURL(args[0])) && (TryParse(args[0]) === false)) return ErrorMsg("Play Parancs", "Meg kell adnod egy létező YouTube linket vagy egy Zene számát a Lejátszási Listádból!", msg.author.id)
             const User = msg.member
             const Bot1Voice = bot.guilds.array()[0].members.get(bots[0]).voiceChannel
             const Bot2Voice = bot.guilds.array()[0].members.get(bots[1]).voiceChannel
