@@ -41,7 +41,9 @@ module.exports = async function(msg, bot) {
         "resume", "pause",        // 22 23
         "shuffle", "repeat",      // 24 25
         "norepeat", "queue",      // 26 27
-        "add", "remove"           // 28 29
+        "add", "remove",          // 28 29
+        "create", "delete",       // 30 31
+        "add", "remove"           // 32 33
     ]
     let msgcreatedAt = msg.createdAt.toString().split(" ")
     let msgFinalCreatedAt = `${msgcreatedAt[1]} ${msgcreatedAt[2]} ${msgcreatedAt[3]}, ${msgcreatedAt[4]}`
@@ -488,6 +490,40 @@ module.exports = async function(msg, bot) {
 
                         })
 
+                }
+
+                // Add User
+                if (msg.content.startsWith(prefix + commands[32])) {
+                    let ChannelsDB = await DB.FindOnePrivateChannels({userid: msg.author.id})
+                    if(!ChannelsDB) return ErrorMsg('Add Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
+                    if(ChannelsDB.channels.length === 0) return ErrorMsg('Add Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
+                    if(!msg.mentions.members.first() || !args[0]) return ErrorMsg('Add Parancs', 'Meg kell adnod egy felhasználót!')
+                    let mentioned = msg.mentions.members.first()
+                    let guild = bot.guilds.array()[0]
+                    let Channels = ChannelsDB.channels
+            
+                    Channels.forEach( el => {
+                        guild.channels.get(el.id).overwritePermissions(mentioned.id, {
+                            CONNECT: true
+                        })
+                    })
+                }
+
+                // Remove User
+                if (msg.content.startsWith(prefix + commands[33])) {
+                    let ChannelsDB = await DB.FindOnePrivateChannels({userid: msg.author.id})
+                    if(!ChannelsDB) return ErrorMsg('Remove Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
+                    if(ChannelsDB.channels.length === 0) return ErrorMsg('Remove Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
+                    if(!msg.mentions.members.first() || !args[0]) return ErrorMsg('Remove Parancs', 'Meg kell adnod egy felhasználót!')
+                    let mentioned = msg.mentions.members.first()
+                    let guild = bot.guilds.array()[0]
+                    let Channels = ChannelsDB.channels
+            
+                    Channels.forEach( el => {
+                        guild.channels.get(el.id).overwritePermissions(mentioned.id, {
+                            CONNECT: false
+                        })
+                    })
                 }
 
 

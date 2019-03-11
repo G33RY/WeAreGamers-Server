@@ -102,6 +102,7 @@ io.on('connection',  async (socket) => {
                             eco.AddToBalance(data.userid, -(item.price)) // Subtrack the item's price from the user's money
                             await DB.UpdateInventory({userid: data.userid}, {DJ: 1}) // Update his inventory
                             socket.emit('Sucess', null) // Send sucess message
+                            bot.guilds.array()[0].members.get(data.userid).addRole('480752423556874250')
                         }
                         
                         else if((data.item == "channel") && (inv.channel != 0)){ // If user have a dj item and the response is a dj item
@@ -110,6 +111,23 @@ io.on('connection',  async (socket) => {
                             eco.AddToBalance(data.userid, -(item.price)) // Subtrack the item's price from the user's money
                             await DB.UpdateInventory({userid: data.userid}, {channel: 1}) // Update his inventory
                             socket.emit('Sucess', null) // Send sucess message
+                            let guild = bot.guilds.array()[0]
+                            let user = guild.members.get(data.userid)
+                    
+                            guild.createChannel(`${user.displayName} Privát Szobája`, "voice", [{
+                                id: guild.id,
+                                deny: ["CONNECT"],
+                                allow: ["VIEW_CHANNEL", "SPEAK"]
+                            }]).then(async m => {
+                                m.setParent('554713698015510558')
+                                m.overwritePermissions(user.id, {
+                                    SPEAK: true,
+                                    VIEW_CHANNEL: true,
+                                    CONNECT: true,
+                                    CREATE_INSTANT_INVITE: true
+                                })
+                                await DB.UpdatePrivateChannels({userid: user.id}, {$push: {channels: {id: m.id, users: []}}})
+                            })
                         }
 
                         else{
@@ -132,8 +150,17 @@ io.on('connection',  async (socket) => {
 
                     if((data.item == "channel") && (inv.channel != 0)){ // If user have a dj item and the response is a dj item
                         eco.AddToBalance(data.userid, ((item.price) - 200)) // Subtrack the item's price from the user's money
+                        let ChannelsDB = await DB.FindOnePrivateChannels({userid: data.userid})
                         await DB.UpdateInventory({userid: data.userid}, {channel: 0}) // Update his inventory
                         socket.emit('Sucess', null) // Send sucess message
+                        let guild = bot.guilds.array()[0]
+                        let user = guild.members.get(data.userid)
+                        let Channels = ChannelsDB.channels
+                
+                        Channels.forEach(async el => {
+                            await DB.UpdatePrivateChannels({userid: user.id}, {$pull: {channels: {id: el.id, users: el.users}}}) 
+                            guild.channels.get(el).delete()
+                        })
                     }
                     
                     else if(eval(`inv.${data.item}`) === 0){
@@ -169,8 +196,38 @@ io.on('connection',  async (socket) => {
             Channel: userinv.channel
         })
 
-        // Handle Music Bots
+        // Private Channels Add/Remove User
+        socket.on('adduser', async (data) => {
+            if(data.member){
+                let guild = bot.guilds.array()[0]
+                let mentioned = guild.members.get(userid)
+                let ChannelsDB = await DB.FindOnePrivateChannels({userid: userid})
+                let Channels = ChannelsDB.channels
 
+                Channels.forEach( el => {
+                    guild.channels.get(el.id).overwritePermissions(mentioned.id, {
+                        CONNECT: true
+                    })
+                })
+                await DB.UpdatePrivateChannels({userid: userid}, { $push: { 'channels.$.users': data.member}})
+            }
+        })
+        socket.on('removeuser', async (data) => {
+            let guild = bot.guilds.array()[0]
+            let mentioned = guild.members.get(userid)
+            let ChannelsDB = await DB.FindOnePrivateChannels({userid: userid})
+            let Channels = ChannelsDB.channels
+    
+            Channels.forEach( el => {
+                guild.channels.get(el.id).overwritePermissions(mentioned.id, {
+                    CONNECT: false
+                })
+            })
+            await DB.UpdatePrivateChannels({userid: userid}, { $pull: { 'channels.$.users': data.member}})
+            
+        })
+
+        // Handle Music Bots
         {
             // Emits:
             //          - Join: 
@@ -625,8 +682,6 @@ io.on('connection',  async (socket) => {
             }
         })
 
-
-
         // Track Balance Change
         EconomyDB.watch({
             fullDocument: "updateLookup"
@@ -914,13 +969,17 @@ setInterval(async () => {
 //! Messages
 bot.on('message', async msg => {
     msghandlers(msg, bot)
+
     // msg.guild.members.map(async m => {
         // await DB.CreateCounters({userid: m.user.id, commands: 0, messages: 0})
         // await DB.CreateInventory({userid: m.user.id, DJ: 0, channel: 0, Arany: 0, Gyémánt: 0})
         // await DB.CreateEconomyDB({userid: m.user.id, balance: 0, daily: 0})
         // await DB.CreateQueue({ userid: m.id, queue: []})
+        // await DB.CreatePrivateChannels({ userid: m.id, channels: []})
         // Leveling.SetXp(m.user.id, 1)
     // })
+    // if (msg.content.startsWith("!fasz")) {
+    // }
 
 });
 

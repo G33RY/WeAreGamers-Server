@@ -100,6 +100,11 @@ mongodb.set('useFindAndModify', false)
         perm_id: String
     }); 
 
+    // PrivateChannels
+    const PrivateChannels_Schema = new mongodb.Schema({
+        userid: String,
+        channels: Array
+    }); const PrivateChannels = mongoose.model("privatechannels", PrivateChannels_Schema)
 
 
 module.exports = {
@@ -211,6 +216,15 @@ module.exports = {
             return func;
         }
     },
+    FindPrivateChannels: async function(ToFind){ 
+        if(typeof ToFind != "string"){
+            const func = await PrivateChannels.find(ToFind)
+            return func;
+        }else{
+            const func = await PrivateChannels.find()
+            return func;
+        }
+    },
 
 
     FindOneCounters: async function(ToFind){ 
@@ -251,7 +265,6 @@ module.exports = {
     },
     FindOneLevelingDB: async function(ToFind){ 
         const func = await LevelingDB.findOne(ToFind)
-
         return func;
     },
     FindOneEconomyDB: async function(ToFind){ 
@@ -260,6 +273,10 @@ module.exports = {
     },
     FindOneHelpDesk: async function(ToFind){ 
         const func = await helpDesk.findOne(ToFind)
+        return func;
+    },
+    FindOnePrivateChannels: async function(ToFind){ 
+        const func = await PrivateChannels.findOne(ToFind)
         return func;
     },
 
@@ -312,6 +329,10 @@ module.exports = {
         const func = await helpDesk.findOneAndUpdate(ToFind, data)
         return func;
     },
+    UpdatePrivateChannels: async function(ToFind, data){ 
+        const func = await PrivateChannels.findOneAndUpdate(ToFind, data)
+        return func;
+    },
 
 
     CreateCounters: async function(data){
@@ -360,6 +381,10 @@ module.exports = {
     },
     CreateHelpDesk: async function(data){ 
         const func = await helpDesk.create(data)
+        return func;
+    },
+    CreatePrivateChannels: async function(data){ 
+        const func = await PrivateChannels.create(data)
         return func;
     },
 }
