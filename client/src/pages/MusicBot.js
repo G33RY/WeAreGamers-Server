@@ -57,6 +57,16 @@ class MusicBot extends Component {
             $("#NoRepeat").click(function () {
                 io.emit('norepeat', "")
             })
+            $("#AddUser").click(function () {
+                io.emit('adduser', {
+                    member: "553900948104151051"
+                })
+            })
+            $("#RemoveUser").click(function () {
+                io.emit('removeuser', {
+                    member: "553900948104151051"
+                })
+            })
         }
     }
     render(){
@@ -77,6 +87,8 @@ class MusicBot extends Component {
                         <button id="Shuffle">Shuffle</button>
                         <button id="Repeat">Repeat</button>
                         <button id="NoRepeat">NoRepeat</button>
+                        <button id="AddUser">AddUser</button>
+                        <button id="RemoveUser">RemoveUser</button>
                     </div>
                 </div>
             )

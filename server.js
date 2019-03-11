@@ -124,7 +124,8 @@ io.on('connection',  async (socket) => {
                                     SPEAK: true,
                                     VIEW_CHANNEL: true,
                                     CONNECT: true,
-                                    CREATE_INSTANT_INVITE: true
+                                    CREATE_INSTANT_INVITE: true,
+                                    MOVE_MEMBERS: true
                                 })
                                 await DB.UpdatePrivateChannels({userid: user.id}, {$push: {channels: {id: m.id, users: []}}})
                             })
@@ -200,31 +201,36 @@ io.on('connection',  async (socket) => {
         socket.on('adduser', async (data) => {
             if(data.member){
                 let guild = bot.guilds.array()[0]
-                let mentioned = guild.members.get(userid)
                 let ChannelsDB = await DB.FindOnePrivateChannels({userid: userid})
                 let Channels = ChannelsDB.channels
-
-                Channels.forEach( el => {
-                    guild.channels.get(el.id).overwritePermissions(mentioned.id, {
+                let num = 0
+ 
+                Channels.forEach(async el => {
+                    guild.channels.get(el.id).overwritePermissions(data.member, {
                         CONNECT: true
                     })
+                    await DB.UpdatePrivateChannels({userid: userid}, { $push: { ["channels." + num + ".users"]: data.member}})
+                    num++
                 })
-                await DB.UpdatePrivateChannels({userid: userid}, { $push: { 'channels.$.users': data.member}})
+                
+                
             }
         })
         socket.on('removeuser', async (data) => {
-            let guild = bot.guilds.array()[0]
-            let mentioned = guild.members.get(userid)
-            let ChannelsDB = await DB.FindOnePrivateChannels({userid: userid})
-            let Channels = ChannelsDB.channels
-    
-            Channels.forEach( el => {
-                guild.channels.get(el.id).overwritePermissions(mentioned.id, {
-                    CONNECT: false
+            if(data.member){
+                let guild = bot.guilds.array()[0]
+                let ChannelsDB = await DB.FindOnePrivateChannels({userid: userid})
+                let Channels = ChannelsDB.channels
+                let num = 0
+        
+                Channels.forEach(async el => {
+                    guild.channels.get(el.id).overwritePermissions(data.member, {
+                        CONNECT: false
+                    })
+                    await DB.UpdatePrivateChannels({userid: userid}, { $pull: { ["channels." + num + ".users"]: data.member}})
+                    num++
                 })
-            })
-            await DB.UpdatePrivateChannels({userid: userid}, { $pull: { 'channels.$.users': data.member}})
-            
+            }   
         })
 
         // Handle Music Bots
