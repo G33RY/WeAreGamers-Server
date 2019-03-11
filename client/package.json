@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env PORT=80 react-scripts start | nodemon ../server.js --watch ../server.js --watch ../api/discord.js",
+    "dev": "cross-env PORT=80 react-scripts start | nodemon ../server.js --watch ../server.js --watch ../Features/musicbot.js",
     "bots": "nodemon ../MusicBots/musicbot1.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
