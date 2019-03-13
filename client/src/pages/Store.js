@@ -30,6 +30,9 @@ let inv = cookies.get('inventory')
 class Store extends Component { 
     render(){
         if(cookies.get('userinfos')){
+            var userid = cookies.get('userinfos').userid
+
+            const io = socketio.connect(`http://www.wearegamers.hu:8080?userid=${userid}`);
             function buy(item){
                 io.emit("buy", {
                     item: item,

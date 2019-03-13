@@ -1,8 +1,11 @@
 const moment = require('moment');
 const Discord = require('discord.js');
+const Leveling = require('discord-leveling');
 const editJsonFile = require("edit-json-file");
 const bot1 = require('../MusicBots/musicbot')
 const bot2 = require('../MusicBots/musicbot1')
+const DB = require('./dbhandlers')
+
 const edititems = editJsonFile(`../DataBases/items.json`, {
     autosave: true
 })
@@ -17,6 +20,40 @@ module.exports = function (bot) {
         console.log("Master Bot Ready") //Kiirja hogy készen áll
         bot1.bot()
         bot2.bot()
+
+        bot.guilds.array()[0].members.map(async m => {
+            const CountersDB = await DB.FindOneCounters({userid: m.user.id})
+            const InvDB = await DB.FindOneInventory({userid: m.user.id})
+            const EcoDB = await DB.FindOneEconomyDB({userid: m.user.id})
+            const QueueDB = await DB.FindOneQueue({userid: m.user.id})
+            const PrivateDB = await DB.FindOnePrivateChannels({userid: m.user.id})
+            const LevelingDB = await DB.FindOneLevelingDB({userid: m.user.id})
+
+            if(!CountersDB){
+                await DB.CreateCounters({userid: m.user.id, commands: 0, messages: 0})
+            }
+
+            if(!InvDB){
+                await DB.CreateInventory({userid: m.user.id, DJ: 0, channel: 0, Arany: 0, Gyémánt: 0})
+            }
+
+            if(!EcoDB){
+                await DB.CreateEconomyDB({userid: m.user.id, balance: 0, daily: 0})
+            }
+
+            if(!QueueDB){
+                await DB.CreateQueue({ userid: m.id, queue: []})
+            }
+
+            if(!PrivateDB){
+                await DB.CreatePrivateChannels({ userid: m.id, channels: []})
+            }
+
+            if(!LevelingDB){
+                Leveling.SetXp(m.user.id, 1)
+            }
+
+        })
 
         bot.user.setActivity("We Are Gamers", {type: "WATCHING"}) //Beállitja a Bot tevékenységét
 

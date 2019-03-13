@@ -387,6 +387,114 @@ module.exports = {
         const func = await PrivateChannels.create(data)
         return func;
     },
+
+    
+    CountCounters: async function(){
+        const func = await Counters.countDocuments()
+        return func;
+    },
+    CountGlobalCounters: async function(){ 
+        const func = await GlobalCounters.countDocuments()
+        return func;
+    },
+    CountMessageCounters: async function(){ 
+        const func = await MessageCounters.countDocuments()
+        return func;
+    },
+    CountCommandCounters: async function(){ 
+        const func = await CommandCounters.countDocuments()
+        return func;
+    },
+    CountInventory: async function(){ 
+        const func = await Inventory.countDocuments()
+        return func;
+    },
+    CountQueue: async function(){ 
+        const func = await Queue.countDocuments()
+        return func;
+    },
+    CountUserInfos: async function(){ 
+        const func = await UserInfos.countDocuments()
+        return func;
+    },
+    CountOnlineHoursTracker: async function(){ 
+        const func = await OnlineHoursTracker.countDocuments()
+        return func;
+    },
+    CountRewardsAfterLevels: async function(){ 
+        const func = await RewardsAfterLevels.countDocuments()
+        return func;
+    },
+    CountLevelingDB: async function(){ 
+        const func = await LevelingDB.countDocuments()
+        return func;
+    },
+    CountEconomyDB: async function(){ 
+        const func = await EconomyDB.countDocuments()
+        return func;
+    },
+    CountHelpDesk: async function(){ 
+        const func = await helpDesk.countDocuments()
+        return func;
+    },
+    CountPrivateChannels: async function(){ 
+        const func = await PrivateChannels.countDocuments()
+        return func;
+    },
+
+
+    DeleteOneCounters: async function(toDelete){
+        const func = await Counters.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneGlobalCounters: async function(toDelete){ 
+        const func = await GlobalCounters.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneMessageCounters: async function(toDelete){ 
+        const func = await MessageCounters.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneCommandCounters: async function(toDelete){ 
+        const func = await CommandCounters.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneInventory: async function(toDelete){ 
+        const func = await Inventory.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneQueue: async function(toDelete){ 
+        const func = await Queue.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneUserInfos: async function(toDelete){ 
+        const func = await UserInfos.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneOnlineHoursTracker: async function(toDelete){ 
+        const func = await OnlineHoursTracker.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneRewardsAfterLevels: async function(toDelete){ 
+        const func = await RewardsAfterLevels.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneLevelingDB: async function(toDelete){ 
+        const func = await LevelingDB.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneEconomyDB: async function(toDelete){ 
+        const func = await EconomyDB.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneHelpDesk: async function(toDelete){ 
+        const func = await helpDesk.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOnePrivateChannels: async function(toDelete){ 
+        const func = await PrivateChannels.deleteOne({toDelete})
+        return func;
+    },
 }
 
 

@@ -113,21 +113,23 @@ io.on('connection',  async (socket) => {
                             socket.emit('Sucess', null) // Send sucess message
                             let guild = bot.guilds.array()[0]
                             let user = guild.members.get(data.userid)
-                    
+                            
                             guild.createChannel(`${user.displayName} Privát Szobája`, 'voice', [{
                                 id: guild.id,
                                 deny: ['CONNECT'],
                                 allow: ['VIEW_CHANNEL', 'SPEAK']
                             }]).then(async m => {
-                                m.setParent('554713698015510558')
-                                m.overwritePermissions(user.id, {
-                                    SPEAK: true,
-                                    VIEW_CHANNEL: true,
-                                    CONNECT: true,
-                                    CREATE_INSTANT_INVITE: true,
-                                    MOVE_MEMBERS: true
-                                })
-                                await DB.UpdatePrivateChannels({userid: user.id}, {$push: {channels: {id: m.id, users: []}}})
+                                if(m){
+                                    m.setParent('554713698015510558')
+                                    m.overwritePermissions(user.id, {
+                                        SPEAK: true,
+                                        VIEW_CHANNEL: true,
+                                        CONNECT: true,
+                                        CREATE_INSTANT_INVITE: true,
+                                        MOVE_MEMBERS: true
+                                    })
+                                    await DB.UpdatePrivateChannels({userid: user.id}, {$push: {channels: {id: m.id, users: []}}})
+                                }
                             })
                         }
 
@@ -160,7 +162,7 @@ io.on('connection',  async (socket) => {
                 
                         Channels.forEach(async el => {
                             await DB.UpdatePrivateChannels({userid: user.id}, {$pull: {channels: {id: el.id, users: el.users}}}) 
-                            guild.channels.get(el).delete()
+                            guild.channels.get(el.id).delete()
                         })
                     }
                     
@@ -984,8 +986,6 @@ bot.on('message', async msg => {
         // await DB.CreatePrivateChannels({ userid: m.id, channels: []})
         // Leveling.SetXp(m.user.id, 1)
     // })
-    // if (msg.content.startsWith('!fasz')) {
-    // }
 
 });
 

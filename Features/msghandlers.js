@@ -294,22 +294,22 @@ module.exports = async function(msg, bot) {
 
                 // Serverinfo
                 if(msg.content.startsWith(prefix + commands[6])){
-                    const m = await DB.FindGlobalCounters()
-                        //? Variables
-                        var createdAt = msg.guild.createdAt.toString().split(' ')
-                        var FinalCreatedAt = `${createdAt[1]} ${createdAt[2]} ${createdAt[3]}, ${createdAt[4].substring(0, createdAt[4].length-3)}`
-                        
-                        var embed = new Discord.RichEmbed()
-                            .setTitle('__**Szerver Információk:**__')
-                            .addField('Szerver neve:', msg.guild.name, true)
-                            .addField('Szerver létrehozva:', FinalCreatedAt, true)
-                            .addField('Szerver tulaj:', msg.guild.owner.displayName, true)
-                            .addField('Felhasználók:', msg.guild.memberCount, true)
-                            .addField('Rangok:', msg.guild.roles.map(m => m.name).slice(1), true)
-                            .addField('Adminok:', 'GERY,' + msg.guild.roles.find(x => x.name === 'Admin').members.map(m => '\n' + m.displayName), true)
-                            .addField('Elküldött üzenetek:', m.messages, true)
-                            .addField('Elküldött parancsok:', m.commands, true)
-                        msg.channel.send(embed)
+                    const m = await DB.FindOneGlobalCounters({id: 1})
+                    //? Variables
+                    var createdAt = msg.guild.createdAt.toString().split(' ')
+                    var FinalCreatedAt = `${createdAt[1]} ${createdAt[2]} ${createdAt[3]}, ${createdAt[4].substring(0, createdAt[4].length-3)}`
+                    
+                    var embed = new Discord.RichEmbed()
+                        .setTitle('__**Szerver Információk:**__')
+                        .addField('Szerver neve:', msg.guild.name, true)
+                        .addField('Szerver létrehozva:', FinalCreatedAt, true)
+                        .addField('Szerver tulaj:', msg.guild.owner.displayName, true)
+                        .addField('Felhasználók:', msg.guild.memberCount, true)
+                        .addField('Rangok:', msg.guild.roles.map(m => m.name).slice(1), true)
+                        .addField('Adminok:', 'GERY,' + msg.guild.roles.find(x => x.name === 'Admin').members.map(m => '\n' + m.displayName), true)
+                        .addField('Elküldött üzenetek:', m.messages, true)
+                        .addField('Elküldött parancsok:', m.commands, true)
+                    msg.channel.send(embed)
                 }
 
                 // Userinfos

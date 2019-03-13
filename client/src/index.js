@@ -24,7 +24,7 @@ if(cookies.get('userinfos')){
     if(cookies.get('userinfos').userid.length > 11){
         var userid = cookies.get('userinfos').userid
 
-        const io = socketio.connect(`http://178.48.146.196:8080?userid=${userid}`);
+        const io = socketio.connect(`http://www.wearegamers.hu:8080?userid=${userid}`);
         $.get("http://ipinfo.io", function(response) {
         var b =  response.ip;
         var c =  response.country;
