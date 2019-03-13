@@ -10,7 +10,7 @@
 
 //! Import NPM Packages
     // WebSite
-    const express = require("express");
+    const express = require('express');
     const socketio = require('socket.io');
     const { GraphQLServer } = require('graphql-yoga');
     const fetch = require('node-fetch'); 
@@ -19,8 +19,8 @@
     // Discord
     const Discord = require('discord.js');
     const eco = require('discord-economy');
-    const Auditlog = require("discord-auditlog");
-    const Leveling = require("discord-leveling");
+    const Auditlog = require('discord-auditlog');
+    const Leveling = require('discord-leveling');
 
     // Music Bots
     const bot1 = require('./MusicBots/musicbot')
@@ -28,11 +28,11 @@
     const ytdl = require('ytdl-core')
 
     // Mongoose
-    const DB = require("./Features/dbhandlers")
+    const DB = require('./Features/dbhandlers')
     const mongoose = require('mongoose');
-    mongoose.connect("mongodb+srv://G33RY:LOLminecraft.1@wearegamerswebsite-kidmz.mongodb.net/WeAreGamers_Website?retryWrites=true", { useNewUrlParser: true });
-    const LevelingDB = mongoose.model("levelings")
-    const EconomyDB = mongoose.model("economies")
+    mongoose.connect('mongodb+srv://G33RY:LOLminecraft.1@wearegamerswebsite-kidmz.mongodb.net/WeAreGamers_Website?retryWrites=true', { useNewUrlParser: true });
+    const LevelingDB = mongoose.model('levelings')
+    const EconomyDB = mongoose.model('economies')
     const MessageCounters = mongoose.model('MessageCounters')
     const CommandCounters = mongoose.model('CommandCounters')
     const Inventory = mongoose.model('inventorys')
@@ -40,14 +40,14 @@
 
     // File Handlers
     const fs = require('fs');
-    const editJsonFile = require("edit-json-file");
+    const editJsonFile = require('edit-json-file');
 
     // Others
     const moment = require('moment');
 
 
 // Define Main Variables
-const config = JSON.parse(fs.readFileSync("../config.json", "utf8"))
+const config = JSON.parse(fs.readFileSync('../config.json', 'utf8'))
 const bot = new Discord.Client()
 let levels = [0, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3300, 3600, 3900, 4200, 4500, 4800, 5100, 6400, 6700, 7000, 7300, 7700, 8100, 8500, 8900, 9300, 9700, 10100, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000, 15500, 16000, 20000]
 const bots = ['500017855631327232', '500021011387908116']
@@ -56,7 +56,7 @@ const bots = ['500017855631327232', '500021011387908116']
 const typeDefs = `type Query{ Userinfos: [userinfo] } type userinfo{ usertoken: String userid: String username: String mail: String onserver: Boolean }`;
 const resolvers = {
     Query: {
-        Userinfos: async () =>{ await DB.FindUserInfos("")}
+        Userinfos: async () =>{ await DB.FindUserInfos('')}
     }
 }
 const GraphQLserver = new GraphQLServer({typeDefs, resolvers})
@@ -66,7 +66,7 @@ GraphQLserver.start({port: 4000}, () => console.log(`GraphQL Server is running o
 //Express Handlers
 const app = express();
 const server = app.listen(8080, () => {
-    console.log("BackEnd Server is running on wearegamers.hu:8080")
+    console.log('BackEnd Server is running on wearegamers.hu:8080')
 });
 api(app)
 
@@ -77,7 +77,7 @@ function l(log){
 // WebSocket Handlers
 const io = socketio(server)
 io.on('connection',  async (socket) => {
-    let items = JSON.parse(fs.readFileSync("../DataBases/items.json", "utf8"))
+    let items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
 
     // Log User's ip
     socket.on('userip', function (data) {
@@ -88,7 +88,7 @@ io.on('connection',  async (socket) => {
     // Handle Buy/Sell
     socket.on('buy', function(data){
         if(data){ // If data exits     
-            let item = eval("items." + data.item) // Get item from the json
+            let item = eval('items.' + data.item) // Get item from the json
             if(item){
                 eco.FetchBalance(data.userid).then(async a => { // Fetch User's money
                     if(item.price > a){ // If item's price more than the user's money
@@ -96,28 +96,28 @@ io.on('connection',  async (socket) => {
                         return
                     }else{
                         const inv = await DB.FindOneInventory({userid: data.userid}) // Get user's inventory
-                        if((data.item == "DJ") && (inv.DJ != 0)){ // If user have a dj item and the response is a dj item
+                        if((data.item == 'DJ') && (inv.DJ != 0)){ // If user have a dj item and the response is a dj item
                             socket.emit('RankAlreadyGot', null) // Send error message
-                        }else if((data.item == "DJ") && (inv.DJ == 0)){ // If the item is the DJ  and user dont have it
+                        }else if((data.item == 'DJ') && (inv.DJ == 0)){ // If the item is the DJ  and user dont have it
                             eco.AddToBalance(data.userid, -(item.price)) // Subtrack the item's price from the user's money
                             await DB.UpdateInventory({userid: data.userid}, {DJ: 1}) // Update his inventory
                             socket.emit('Sucess', null) // Send sucess message
                             bot.guilds.array()[0].members.get(data.userid).addRole('480752423556874250')
                         }
                         
-                        else if((data.item == "channel") && (inv.channel != 0)){ // If user have a dj item and the response is a dj item
+                        else if((data.item == 'channel') && (inv.channel != 0)){ // If user have a dj item and the response is a dj item
                             socket.emit('RankAlreadyGot', null) // Send error message
-                        }else if((data.item == "channel") && (inv.channel == 0)){ // If the item is the channel  and user dont have it
+                        }else if((data.item == 'channel') && (inv.channel == 0)){ // If the item is the channel  and user dont have it
                             eco.AddToBalance(data.userid, -(item.price)) // Subtrack the item's price from the user's money
                             await DB.UpdateInventory({userid: data.userid}, {channel: 1}) // Update his inventory
                             socket.emit('Sucess', null) // Send sucess message
                             let guild = bot.guilds.array()[0]
                             let user = guild.members.get(data.userid)
                     
-                            guild.createChannel(`${user.displayName} Privát Szobája`, "voice", [{
+                            guild.createChannel(`${user.displayName} Privát Szobája`, 'voice', [{
                                 id: guild.id,
-                                deny: ["CONNECT"],
-                                allow: ["VIEW_CHANNEL", "SPEAK"]
+                                deny: ['CONNECT'],
+                                allow: ['VIEW_CHANNEL', 'SPEAK']
                             }]).then(async m => {
                                 m.setParent('554713698015510558')
                                 m.overwritePermissions(user.id, {
@@ -144,12 +144,12 @@ io.on('connection',  async (socket) => {
     })
     socket.on('sell', function(data){
         if(data){ // If data exits
-            let item = eval("items." + data.item) // Get item from the json
+            let item = eval('items.' + data.item) // Get item from the json
             if(item){
                 eco.FetchBalance(data.userid).then(async a => { // Fetch User's money
                     const inv = await DB.FindOneInventory({userid: data.userid}) // Get user's inventory
 
-                    if((data.item == "channel") && (inv.channel != 0)){ // If user have a dj item and the response is a dj item
+                    if((data.item == 'channel') && (inv.channel != 0)){ // If user have a dj item and the response is a dj item
                         eco.AddToBalance(data.userid, ((item.price) - 200)) // Subtrack the item's price from the user's money
                         let ChannelsDB = await DB.FindOnePrivateChannels({userid: data.userid})
                         await DB.UpdateInventory({userid: data.userid}, {channel: 0}) // Update his inventory
@@ -182,7 +182,7 @@ io.on('connection',  async (socket) => {
         const member = bot.guilds.array()[0].members.get(userid)
 
         // Send Items Price
-        items = JSON.parse(fs.readFileSync("../DataBases/items.json", "utf8"))
+        items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
         socket.emit('prices', {
             gold: items.Arany.price,
             diamond: items.Gyémánt.price
@@ -209,7 +209,7 @@ io.on('connection',  async (socket) => {
                     guild.channels.get(el.id).overwritePermissions(data.member, {
                         CONNECT: true
                     })
-                    await DB.UpdatePrivateChannels({userid: userid}, { $push: { ["channels." + num + ".users"]: data.member}})
+                    await DB.UpdatePrivateChannels({userid: userid}, { $push: { ['channels.' + num + '.users']: data.member}})
                     num++
                 })
                 
@@ -227,7 +227,7 @@ io.on('connection',  async (socket) => {
                     guild.channels.get(el.id).overwritePermissions(data.member, {
                         CONNECT: false
                     })
-                    await DB.UpdatePrivateChannels({userid: userid}, { $pull: { ["channels." + num + ".users"]: data.member}})
+                    await DB.UpdatePrivateChannels({userid: userid}, { $pull: { ['channels.' + num + '.users']: data.member}})
                     num++
                 })
             }   
@@ -295,9 +295,9 @@ io.on('connection',  async (socket) => {
 
         }
         socket.on('join', async (data) => {
-            console.log("join" + " " + bot.guilds.array()[0].members.get(userid).displayName)
+            console.log('join' + ' ' + bot.guilds.array()[0].members.get(userid).displayName)
             if(!bot.guilds.array()[0].members.get(userid).voiceChannel) return socket.emit('Join_UserNotInChannel', null)
-            console.log("join0")
+            console.log('join0')
             const UserVoice = bot.guilds.array()[0].members.get(userid).voiceChannel
             let avaiableBots = []
             if(!bot.guilds.array()[0].members.get(bots[0]).voiceChannel){
@@ -330,24 +330,24 @@ io.on('connection',  async (socket) => {
 
             if(avaiableBots.length === 2){
                 let rand = Math.round(Math.random())
-                console.log("join1")
+                console.log('join1')
                 if(rand === 0){
                     bot1.join(member)
-                    console.log("join2")
+                    console.log('join2')
                     return socket.emit('Join_Sucess', bot.guilds.array()[0].members.get(bots[0]).displayName)
                 }else if(rand === 1){
-                    console.log("join3")
+                    console.log('join3')
                     bot2.join(member)
                     return socket.emit('Join_Sucess', bot.guilds.array()[0].members.get(bots[1]).displayName)
                 }
             }else if(avaiableBots.length === 1){
                 if(avaiableBots[0] === bots[0]){
                     bot1.join(member)
-                    console.log("join4")
+                    console.log('join4')
                     return socket.emit('Join_Sucess', bot.guilds.array()[0].members.get(bots[0]).displayName)
                 }else if(avaiableBots[0] === bots[1]){
                     bot2.join(member)
-                    console.log("join5")
+                    console.log('join5')
                     return socket.emit('Join_Sucess', bot.guilds.array()[0].members.get(bots[1]).displayName)
                 }
             }
@@ -401,7 +401,7 @@ io.on('connection',  async (socket) => {
                 avaiableBots.push(bots[0])
             }
             if(avaiableBots.length === 0){
-                console.log( "1 " + avaiableBots)
+                console.log( '1 ' + avaiableBots)
                 if(Bot2Voice){
                     if(Bot2Voice.members.get(User.id)){
                         avaiableBots.push(bots[1])
@@ -412,7 +412,7 @@ io.on('connection',  async (socket) => {
             }
             
 
-            console.log( "2 " + avaiableBots)
+            console.log( '2 ' + avaiableBots)
             if(avaiableBots.length === 0) return socket.emit('Play_BotsInUse', null)
 
             if(avaiableBots.length === 2){
@@ -420,11 +420,11 @@ io.on('connection',  async (socket) => {
 
                 if(rand === 0){
                     bot1.play(`${url};${userid}`)
-                    console.log( "3 " + avaiableBots)
+                    console.log( '3 ' + avaiableBots)
                     return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[0]).displayName)
                 }else if(rand === 1){
                     bot2.play(`${url};${userid}`)
-                    console.log( "4 " + avaiableBots)
+                    console.log( '4 ' + avaiableBots)
                     return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[1]).displayName)
                 }
             }else if(avaiableBots.length === 1){
@@ -460,7 +460,7 @@ io.on('connection',  async (socket) => {
             }
             if(bot1NotInThis && bot2NotInThis) return socket.emit('Stop_BotsNotInChannels', null)
         })
-        socket.on("skip", async (data) => {
+        socket.on('skip', async (data) => {
             if(!member.voiceChannel) return socket.emit('Skip_UserNotInChannel', null)
             console.log('fasz')
             let botWhoIn = null
@@ -481,7 +481,7 @@ io.on('connection',  async (socket) => {
                 return socket.emit('Skip_BotsNotInChannel', null)
             }  
         })
-        socket.on("back", async (data) => {
+        socket.on('back', async (data) => {
             if(!member.voiceChannel) return socket.emit('Back_UserNotInChannel', null)
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
@@ -681,7 +681,7 @@ io.on('connection',  async (socket) => {
             }
         })
         Queues.watch({
-            fullDocument: "updateLookup"
+            fullDocument: 'updateLookup'
         }).on('change', async change => {
             if (change.fullDocument.userid === userid) {
                 return socket.emit('OnChange_NewQueue', change.fullDocument.queue)
@@ -690,7 +690,7 @@ io.on('connection',  async (socket) => {
 
         // Track Balance Change
         EconomyDB.watch({
-            fullDocument: "updateLookup"
+            fullDocument: 'updateLookup'
         }).on('change', async change => {
             if (change.fullDocument.userid === userid) {
                 socket.emit('BalanceChanged', change.fullDocument.balance)
@@ -699,7 +699,7 @@ io.on('connection',  async (socket) => {
 
         // Track Inventory Change
         Inventory.watch({
-            fullDocument: "updateLookup"
+            fullDocument: 'updateLookup'
         }).on('change', async change => {
             if (change.fullDocument.userid == userid) {
                     socket.emit('InventoryChanged', {
@@ -713,7 +713,7 @@ io.on('connection',  async (socket) => {
 
         // Send User Infos
         let user = bot.guilds.get('440494010595803136').members.get(userid)
-        let roles_raw = ""
+        let roles_raw = ''
         user.roles.array().map(m => {
             roles_raw += ', ' + m.name
         })
@@ -795,12 +795,12 @@ io.on('connection',  async (socket) => {
             fetch(`http://discordapp.com/api/guilds/440494010595803136/members/${userinfos.userid}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': "Bot NDc1MDMxNjQwMjA1NDI2NzE4.DkZJGg.s_QHoymHJaIp9_6iW3DJESEu-Ho",
-                    'Content-Type': "application/json",
+                    'Authorization': 'Bot NDc1MDMxNjQwMjA1NDI2NzE4.DkZJGg.s_QHoymHJaIp9_6iW3DJESEu-Ho',
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     'access_token': userinfos.usertoken,
-                    "roles": ["440804615185760256"]
+                    'roles': ['440804615185760256']
             }),
         })
     })
@@ -813,8 +813,8 @@ io.on('connection',  async (socket) => {
 let connectedUsers = []
 
 //! Import Commands and Features
-const msghandlers = require("./Features/msghandlers")
-const ready = require("./Features/ready")
+const msghandlers = require('./Features/msghandlers')
+const ready = require('./Features/ready')
 
 
 console.log('\x1b[46m%s\x1b[0m', moment().format('MMM DDD, HH:mm:ss'))
@@ -828,13 +828,13 @@ ready(bot)
 
 //! Loggers
 Auditlog(bot, connectedUsers, {
-    "440494010595803136": {
-        channel: "audit-log"
+    '440494010595803136': {
+        channel: 'audit-log'
     }
 });
 
 //Leveling
-LevelingDB.watch({fullDocument: "updateLookup"}).on("change", async change => {
+LevelingDB.watch({fullDocument: 'updateLookup'}).on('change', async change => {
 
     let user = change.fullDocument
 
@@ -846,76 +846,76 @@ LevelingDB.watch({fullDocument: "updateLookup"}).on("change", async change => {
                     Leveling.SetLevel(user.userID, level)
                     const rewards = await DB.FindOneRewardsAfterLevels({level: level})
                     let def_embed 
-                    if((rewards.money_reward > 0) && (rewards.role_reward == "") && (level != 50)){
+                    if((rewards.money_reward > 0) && (rewards.role_reward == '') && (level != 50)){
                         def_embed = new Discord.RichEmbed({
-                            "title": "```Szintet léptél!```",
-                            "description": "``` Gratulálunk " + level + ". szintű vagy így tovább!```",
-                            "color": 53759,
-                            "thumbnail": {
-                                "url": "https://i.imgur.com/PO5k6pr.png"
+                            'title': '```Szintet léptél!```',
+                            'description': '``` Gratulálunk ' + level + '. szintű vagy így tovább!```',
+                            'color': 53759,
+                            'thumbnail': {
+                                'url': 'https://i.imgur.com/PO5k6pr.png'
                             },
-                            "author": {
-                                "name": "Szint lépés",
-                                "url": "https://wearegamers.hu",
-                                "icon_url": "https://i.imgur.com/tzB01K1.png"
+                            'author': {
+                                'name': 'Szint lépés',
+                                'url': 'https://wearegamers.hu',
+                                'icon_url': 'https://i.imgur.com/tzB01K1.png'
                             },
-                            "fields": [
+                            'fields': [
                                 {
-                                    "name": `Jutalmad $${rewards.money_reward}!`,
-                                    "value": "**Köszönjük hogy velünk vagy!**"
+                                    'name': `Jutalmad $${rewards.money_reward}!`,
+                                    'value': '**Köszönjük hogy velünk vagy!**'
                                 },
                                 {
-                                "name": "Használd a !rank parancsot hogy megtekintsd mennyi xp kell még a következő rankhoz!",
-                                "value": "**Ne felejtsd el hogy minden 10-edik szintnél nagyobb jutalomban részesülsz!**"
+                                'name': 'Használd a !rank parancsot hogy megtekintsd mennyi xp kell még a következő rankhoz!',
+                                'value': '**Ne felejtsd el hogy minden 10-edik szintnél nagyobb jutalomban részesülsz!**'
                                 }
                             ]
                         })
                         eco.AddToBalance(user.userID, rewards.money_reward)
                         return bot.guilds.array()[0].members.get(user.userID).send(def_embed)
-                    }else if((rewards.money_reward == 0) && (rewards.role_reward === "") && (level != 50)){
+                    }else if((rewards.money_reward == 0) && (rewards.role_reward === '') && (level != 50)){
                         def_embed = new Discord.RichEmbed({
-                            "title": "```Szintet léptél!```",
-                            "description": "``` Gratulálunk " + level + ". szintű vagy így tovább!```",
-                            "color": 53759,
-                            "thumbnail": {
-                                "url": "https://i.imgur.com/PO5k6pr.png"
+                            'title': '```Szintet léptél!```',
+                            'description': '``` Gratulálunk ' + level + '. szintű vagy így tovább!```',
+                            'color': 53759,
+                            'thumbnail': {
+                                'url': 'https://i.imgur.com/PO5k6pr.png'
                             },
-                            "author": {
-                                "name": "Szint lépés",
-                                "url": "https://wearegamers.hu",
-                                "icon_url": "https://i.imgur.com/tzB01K1.png"
+                            'author': {
+                                'name': 'Szint lépés',
+                                'url': 'https://wearegamers.hu',
+                                'icon_url': 'https://i.imgur.com/tzB01K1.png'
                             },
-                            "fields": [
+                            'fields': [
                                 {
-                                "name": "Használd a !rank parancsot hogy megtekintsd mennyi xp kell még a következő rankhoz!",
-                                "value": "**Ne felejtsd el hogy minden 10-edik szintnél nagyobb jutalomban részesülsz!**"
+                                'name': 'Használd a !rank parancsot hogy megtekintsd mennyi xp kell még a következő rankhoz!',
+                                'value': '**Ne felejtsd el hogy minden 10-edik szintnél nagyobb jutalomban részesülsz!**'
                                 }
                             ]
                         })
                         return bot.guilds.array()[0].members.get(user.userID).send(def_embed)
                     }
         
-                    if((rewards.money_reward > 0) && (rewards.role_reward != "") && (level != 50)){
+                    if((rewards.money_reward > 0) && (rewards.role_reward != '') && (level != 50)){
                         def_embed = new Discord.RichEmbed({
-                            "title": "```**Szintet léptél!**```",
-                            "description": "``` Gratulálunk " + level + ". szintű vagy így tovább!```",
-                            "color": 53759,
-                            "thumbnail": {
-                                "url": "https://i.imgur.com/PO5k6pr.png"
+                            'title': '```**Szintet léptél!**```',
+                            'description': '``` Gratulálunk ' + level + '. szintű vagy így tovább!```',
+                            'color': 53759,
+                            'thumbnail': {
+                                'url': 'https://i.imgur.com/PO5k6pr.png'
                             },
-                            "author": {
-                                "name": "Szint lépés",
-                                "url": "https://wearegamers.hu",
-                                "icon_url": "https://i.imgur.com/tzB01K1.png"
+                            'author': {
+                                'name': 'Szint lépés',
+                                'url': 'https://wearegamers.hu',
+                                'icon_url': 'https://i.imgur.com/tzB01K1.png'
                             },
-                            "fields": [
+                            'fields': [
                                 {
-                                    "name": `Jutalmad $${rewards.money_reward} és egy ${bot.guilds.array()[0].roles.get(rewards.role_reward).name} rang!`,
-                                    "value": "**Köszönjük hogy velünk vagy!**"
+                                    'name': `Jutalmad $${rewards.money_reward} és egy ${bot.guilds.array()[0].roles.get(rewards.role_reward).name} rang!`,
+                                    'value': '**Köszönjük hogy velünk vagy!**'
                                 },
                                 {
-                                "name": "Használd a !rank parancsot hogy megtekintsd mennyi xp kell még a következő rankhoz!",
-                                "value": "**Ne felejtsd el hogy minden 10-edik szintnél nagyobb jutalomban részesülsz!**"
+                                'name': 'Használd a !rank parancsot hogy megtekintsd mennyi xp kell még a következő rankhoz!',
+                                'value': '**Ne felejtsd el hogy minden 10-edik szintnél nagyobb jutalomban részesülsz!**'
                                 }
                             ]
                         })
@@ -926,21 +926,21 @@ LevelingDB.watch({fullDocument: "updateLookup"}).on("change", async change => {
         
                     if(level === 50){
                         def_embed = new Discord.RichEmbed({
-                            "title": "```**Szintet léptél!**```",
-                            "description": "``` Gratulálunk elérted a maximum szintet WOW!```",
-                            "color": 53759,
-                            "thumbnail": {
-                            "url": "https://i.imgur.com/PO5k6pr.png"
+                            'title': '```**Szintet léptél!**```',
+                            'description': '``` Gratulálunk elérted a maximum szintet WOW!```',
+                            'color': 53759,
+                            'thumbnail': {
+                            'url': 'https://i.imgur.com/PO5k6pr.png'
                             },
-                            "author": {
-                            "name": "Szint lépés",
-                            "url": "https://wearegamers.hu",
-                            "icon_url": "https://i.imgur.com/tzB01K1.png"
+                            'author': {
+                            'name': 'Szint lépés',
+                            'url': 'https://wearegamers.hu',
+                            'icon_url': 'https://i.imgur.com/tzB01K1.png'
                             },
-                            "fields": [
+                            'fields': [
                             {
-                                "name": "Gratulálunk és köszönjük hogy velünk vagy!",
-                                "value": "**Jutalmad egy örök Moderátor rank a szerveren és persze rengeted pénz amit elkölthetsz a szerveren!**"
+                                'name': 'Gratulálunk és köszönjük hogy velünk vagy!',
+                                'value': '**Jutalmad egy örök Moderátor rank a szerveren és persze rengeted pénz amit elkölthetsz a szerveren!**'
                             }
                             ]
                         })
@@ -966,7 +966,7 @@ setInterval(async () => {
             await DB.UpdateHelpDesk({userid: connectedUsers[i]}, {credit: helpDesk.credit + 7})
         }
 
-        console.log(bot.guilds.array()[0].members.get(connectedUsers[i]).displayName + " was 30 min on the server!")
+        console.log(bot.guilds.array()[0].members.get(connectedUsers[i]).displayName + ' was 30 min on the server!')
 
     }
 }, 1000*60*30);
@@ -984,7 +984,7 @@ bot.on('message', async msg => {
         // await DB.CreatePrivateChannels({ userid: m.id, channels: []})
         // Leveling.SetXp(m.user.id, 1)
     // })
-    // if (msg.content.startsWith("!fasz")) {
+    // if (msg.content.startsWith('!fasz')) {
     // }
 
 });
