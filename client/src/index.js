@@ -28,7 +28,7 @@ if(cookies.get('userinfos')){
         $.get("http://ipinfo.io", function(response) {
         var b =  response.ip;
         var c =  response.country;
-            io.emit('userip', {
+            io.emit('memberip', {
                 ip: b,
                 loc: c
             })
@@ -126,6 +126,17 @@ if(cookies.get('userinfos')){
         })
 
     }
+}else{
+    const io = socketio.connect(`http://www.wearegamers.hu:8080`);
+    console.log('fasz')
+    $.get("http://ipinfo.io", function(response) {
+        var b =  response.ip;
+        var c =  response.country;
+            io.emit('userip', {
+                ip: b,
+                loc: c
+            })
+        }, "json");
 }
 
 

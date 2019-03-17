@@ -11,7 +11,7 @@ const MusicBot = require('./musicbot')
 
 // Import JSON files
 let items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
-const help = JSON.parse(fs.readFileSync('../Features/helpcmd.json', 'utf8'))
+let help = JSON.parse(fs.readFileSync('../Features/helpcmd.json', 'utf8'))
 const config = JSON.parse(fs.readFileSync('../config.json', 'utf8'))
 
 // Define Main Variables
@@ -26,24 +26,24 @@ module.exports = async function(msg, bot) {
     //? variables
     let args = msg.content.slice(prefix.length).split(' ').slice(1)
     let commands = [
-        'help', 'suggest',        // 0 1
-        'ping', 'store',          // 2 3
-        'bank', 'leaderboard',    // 4 5
-        'serverinfo', 'userinfo', // 6 7
-        'purge', 'allmoney',      // 8 9
-        'addmoney', 'takemoney',  // 10 11
-        'inventory', 'sale',      // 12 13
-        'transfer', 'rank',       // 14 15
+        'help', 'musichelp',            // 0 1
+        'ping', 'suggest',              // 2 3
+        'store', 'bank',                // 4 5
+        'leaderboard', 'serverinfo',    // 6 7
+        'userinfo', 'purge',            // 8 9
+        'allmoney', 'addmoney',         // 10 11
+        'inventory', 'sale',            // 12 13
+        'transfer', 'rank',             // 14 15
+        'adduser', 'removeuser',        // 16 17
 
-        'join', 'leave',          // 16 17
-        'play', 'stop',           // 18 19
-        'skip', 'back',           // 20 21
-        'resume', 'pause',        // 22 23
-        'shuffle', 'repeat',      // 24 25
-        'norepeat', 'queue',      // 26 27
-        'add', 'remove',          // 28 29
-        'create', 'delete',       // 30 31
-        'add', 'remove'           // 32 33
+        'join', 'leave',                // 18 19
+        'play', 'stop',                 // 20 21
+        'skip', 'back',                 // 22 23
+        'resume', 'pause',              // 24 25
+        'shuffle', 'repeat',            // 26 27
+        'norepeat', 'queue',            // 28 29
+        'search', 'add',                // 30 31
+        'remove'                        // 32
     ]
     let msgcreatedAt = msg.createdAt.toString().split(' ')
     let msgFinalCreatedAt = `${msgcreatedAt[1]} ${msgcreatedAt[2]} ${msgcreatedAt[3]}, ${msgcreatedAt[4]}`
@@ -62,6 +62,14 @@ module.exports = async function(msg, bot) {
     if((msg.channel.type != 'dm') && (!msg.author.bot)){
         if((msg.guild.id === '440494010595803136')){
             Leveling.AddXp(msg.author.id, 3)
+
+                    
+            for(let i=16; i<commands.length; i++){
+                if(msg.content.startsWith(prefix+commands[i])){
+                    if(msg.channel.name != 'zene') return ErrorMsg('MusicBot', 'Csak a zene nevű szobában tudod ezt a parancsot használni!', msg.author.id)
+                    if(!msg.member.roles.get('480752423556874250')) return ErrorMsg('MusicBot', 'Nincs DJ rangod!', msg.author.id)
+                }
+            }
 
             MusicBot(bot, msg, commands, prefix)
 
@@ -118,13 +126,13 @@ module.exports = async function(msg, bot) {
             if ((msg.channel.name == 'bot-parancsok') || (msg.channel.name == 'config-chat')) {
                 
                 // Ping
-                if(msg.content.startsWith(prefix + commands[2])) { 
+                if(msg.content.startsWith(prefix + commands[3])) { 
                     msg.author.send('A pingem:' + bot.ping) 
                     msg.delete() 
                 }
 
                 // Store
-                if (msg.content.startsWith(prefix + commands[3])) {
+                if (msg.content.startsWith(prefix + commands[4])) {
                     // Variables
                     let names = []
 
@@ -201,7 +209,126 @@ module.exports = async function(msg, bot) {
                             }
                     })
                 }
+                
+                // Bank
+                if (msg.content.startsWith(prefix + commands[5])) { 
+                    eco.FetchBalance(msg.author.id).then((i) => { 
+                        var embed = new Discord.RichEmbed()
+                            .setDescription(`**${msg .guild.name} Bank**`)
+                            .setColor(0xD4AF37)
+                            .addField('Számla Tulajdonos: ', msg.member.displayName, true) 
+                            .addField('Számla Egyenleg: ', i.balance, true)
+                        msg.channel.send(embed)
+                    })
+                }
+                
+                // Leaderboard
+                if(msg.content.startsWith(prefix + commands[6])){ 
+                    //? Variables
+                    var i
+                    eco.Leaderboard().then(a => {
+                        
+                        var embed = new Discord.RichEmbed()
+                            .setTitle(`**${msg.guild.name} Leaderboard**`)
+                            .setDescription('**======__TOP 5 LIST__======**') 
+                        for(i = 0; i < 5; i ++){
+                            embed.addField(`**${i+1}.**`, `**${msg.guild.members.find(x => x.id === a[i].userid).displayName}:** $${a[i].balance}`)
+                        }
+                        msg.channel.send(embed)
+                    })
+                }
 
+                // Serverinfo
+                if(msg.content.startsWith(prefix + commands[7])){
+                    const m = await DB.FindOneGlobalCounters({id: 1})
+                    //? Variables
+                    var createdAt = msg.guild.createdAt.toString().split(' ')
+                    var FinalCreatedAt = `${createdAt[1]} ${createdAt[2]} ${createdAt[3]}, ${createdAt[4].substring(0, createdAt[4].length-3)}`
+                    
+                    var embed = new Discord.RichEmbed()
+                        .setTitle('__**Szerver Információk:**__')
+                        .addField('Szerver neve:', msg.guild.name, true)
+                        .addField('Szerver létrehozva:', FinalCreatedAt, true)
+                        .addField('Szerver tulaj:', msg.guild.owner.displayName, true)
+                        .addField('Felhasználók:', msg.guild.memberCount, true)
+                        .addField('Rangok:', msg.guild.roles.map(m => m.name).slice(1), true)
+                        .addField('Adminok:', 'GERY,' + msg.guild.roles.find(x => x.name === 'Admin').members.map(m => '\n' + m.displayName), true)
+                        .addField('Elküldött üzenetek:', m.messages, true)
+                        .addField('Elküldött parancsok:', m.commands, true)
+                    msg.channel.send(embed)
+                }
+
+                // Userinfos
+                if(msg.content.startsWith(prefix + commands[8])){
+
+                    //` Variables
+                    var mentioned
+            
+                    if((args.toString().startsWith('<@&')) || (args.toString().startsWith('@')) || (!args[0])){
+                        mentioned = msg.member
+                    }
+                    if((args.toString().startsWith('<@')) && (!args.toString().startsWith('<@&'))){
+                        mentioned = msg.mentions.members.first()
+                    }
+            
+                    var userCreated = mentioned.joinedAt.toString().split(' ')
+                    var FinalCreatedTime = `${userCreated[1]} ${userCreated[2]} ${userCreated[3]}, ${userCreated[4].substring(0, userCreated[4].length-3)}`
+                
+                    const m = await DB.FindOneCounters({userid: mentioned.user.id})
+                        var embed = new Discord.RichEmbed()
+                        .setTitle(`__**${mentioned.displayName} Statisztikái:**__`)
+                        .addField('A felhasználó ID-je:', mentioned.user.id, true)
+                        .addField('A felhasználó státusza:', mentioned.presence.status, true)
+                        .addField('Csatlakozott:', FinalCreatedTime, true)
+                        .addField('A felhasználó rangjai:',  mentioned.roles.map(m => m.name).slice(1), true)
+                        .addField('Elküldött üzenetek:', m.messages, true)
+                        .addField('Elküldött parancsok:', m.commands, true)
+                        msg.channel.send(embed)
+                }
+
+                // Allmoney
+                if((msg.content.startsWith(prefix + commands[10])) && (msg.member.roles.find(x => x.name === modRole))) {
+                    //? Variables
+                    var i
+            
+                    eco.Leaderboard().then(a => {
+
+                        console.log()
+                        var embed = new Discord.RichEmbed()
+                            .setTitle(`**${msg.guild.name} Leaderboard**`)
+                            .setDescription('**======__TOP 5 LIST__======**') 
+                        for(i = 0; i < a.lenght; i ++){
+                            embed.addField(`**${i+1}.**`, `**${msg.guild.members.find(x => x.id === a[i].userid).displayName}:** $${a[i].balance}`)
+                        }
+                        msg.channel.send(embed)
+                    })     
+                }
+
+                // Addmoney
+                if (msg.content.startsWith(prefix + commands[11])) { 
+                    if (!msg.member.roles.find(x => x.name === modRole)) { 
+                        ErrorMsg('Addmoney Parancs', 'Te nem használhatod ezt a parancsot!', msg.author.id)
+                    }
+                    if (!args[0]) {
+                        ErrorMsg('Addmoney Parancs', `Megkell adnod egy számot a parancs után! Használat: ${prefix}addmoney <mennyiség> @<felhasználó>`, msg.author.id)
+                    }
+                    if (isNaN(args[0])) {
+                        ErrorMsg('Addmoney Parancs', `Megkell adnod egy **SZÁMOT** a parancs után! Használat: ${prefix}addmoney <mennyiség> @<felhasználó>`, msg.author.id)
+                    }
+                    
+                    var defineduser = ''
+                    if (!args[1]) { 
+                        defineduser = msg.author.id 
+                    } else { 
+                        var firstMentioned = msg.mentions.users.first() 
+                        defineduser = firstMentioned.id
+                    }
+                    eco.AddToBalance(defineduser, parseInt(args[0])).then((i) => {
+                        console.log(`User ${defineduser} defined had ${args[0]} added to his account.`) 
+                        msg.delete()
+                    })
+                }
+                
                 // Inventory
                 if (msg.content.startsWith(prefix + commands[12])) { 
                             
@@ -262,125 +389,6 @@ module.exports = async function(msg, bot) {
                             ErrorMsg('Sale Parancs', 'Meg kell adnod egy létező tárgy nevét!', msg.author.id)
                         }
 
-                }
-
-                // Bank
-                if (msg.content.startsWith(prefix + commands[4])) { 
-                    eco.FetchBalance(msg.author.id).then((i) => { 
-                        var embed = new Discord.RichEmbed()
-                            .setDescription(`**${msg .guild.name} Bank**`)
-                            .setColor(0xD4AF37)
-                            .addField('Számla Tulajdonos: ', msg.member.displayName, true) 
-                            .addField('Számla Egyenleg: ', i.balance, true)
-                        msg.channel.send(embed)
-                    })
-                }
-
-                // Leaderboard
-                if(msg.content.startsWith(prefix + commands[5])){ 
-                    //? Variables
-                    var i
-                    eco.Leaderboard().then(a => {
-                        
-                        var embed = new Discord.RichEmbed()
-                            .setTitle(`**${msg.guild.name} Leaderboard**`)
-                            .setDescription('**======__TOP 5 LIST__======**') 
-                        for(i = 0; i < 5; i ++){
-                            embed.addField(`**${i+1}.**`, `**${msg.guild.members.find(x => x.id === a[i].userid).displayName}:** $${a[i].balance}`)
-                        }
-                        msg.channel.send(embed)
-                    })
-                }
-
-                // Serverinfo
-                if(msg.content.startsWith(prefix + commands[6])){
-                    const m = await DB.FindOneGlobalCounters({id: 1})
-                    //? Variables
-                    var createdAt = msg.guild.createdAt.toString().split(' ')
-                    var FinalCreatedAt = `${createdAt[1]} ${createdAt[2]} ${createdAt[3]}, ${createdAt[4].substring(0, createdAt[4].length-3)}`
-                    
-                    var embed = new Discord.RichEmbed()
-                        .setTitle('__**Szerver Információk:**__')
-                        .addField('Szerver neve:', msg.guild.name, true)
-                        .addField('Szerver létrehozva:', FinalCreatedAt, true)
-                        .addField('Szerver tulaj:', msg.guild.owner.displayName, true)
-                        .addField('Felhasználók:', msg.guild.memberCount, true)
-                        .addField('Rangok:', msg.guild.roles.map(m => m.name).slice(1), true)
-                        .addField('Adminok:', 'GERY,' + msg.guild.roles.find(x => x.name === 'Admin').members.map(m => '\n' + m.displayName), true)
-                        .addField('Elküldött üzenetek:', m.messages, true)
-                        .addField('Elküldött parancsok:', m.commands, true)
-                    msg.channel.send(embed)
-                }
-
-                // Userinfos
-                if(msg.content.startsWith(prefix + commands[7])){
-
-                    //` Variables
-                    var mentioned
-            
-                    if((args.toString().startsWith('<@&')) || (args.toString().startsWith('@')) || (!args[0])){
-                        mentioned = msg.member
-                    }
-                    if((args.toString().startsWith('<@')) && (!args.toString().startsWith('<@&'))){
-                        mentioned = msg.mentions.members.first()
-                    }
-            
-                    var userCreated = mentioned.joinedAt.toString().split(' ')
-                    var FinalCreatedTime = `${userCreated[1]} ${userCreated[2]} ${userCreated[3]}, ${userCreated[4].substring(0, userCreated[4].length-3)}`
-                
-                    const m = await DB.FindOneCounters({userid: mentioned.user.id})
-                        var embed = new Discord.RichEmbed()
-                        .setTitle(`__**${mentioned.displayName} Statisztikái:**__`)
-                        .addField('A felhasználó ID-je:', mentioned.user.id, true)
-                        .addField('A felhasználó státusza:', mentioned.presence.status, true)
-                        .addField('Csatlakozott:', FinalCreatedTime, true)
-                        .addField('A felhasználó rangjai:',  mentioned.roles.map(m => m.name).slice(1), true)
-                        .addField('Elküldött üzenetek:', m.messages, true)
-                        .addField('Elküldött parancsok:', m.commands, true)
-                        msg.channel.send(embed)
-                }
-
-                // Allmoney
-                if((msg.content.startsWith(prefix + commands[9])) && (msg.member.roles.find(x => x.name === modRole))) {
-                    //? Variables
-                    var i
-            
-                    eco.Leaderboard().then(a => {
-
-                        console.log()
-                        var embed = new Discord.RichEmbed()
-                            .setTitle(`**${msg.guild.name} Leaderboard**`)
-                            .setDescription('**======__TOP 5 LIST__======**') 
-                        for(i = 0; i < a.lenght; i ++){
-                            embed.addField(`**${i+1}.**`, `**${msg.guild.members.find(x => x.id === a[i].userid).displayName}:** $${a[i].balance}`)
-                        }
-                        msg.channel.send(embed)
-                    })     
-                }
-
-                // Addmoney
-                if (msg.content.startsWith(prefix + commands[10])) { 
-                    if (!msg.member.roles.find(x => x.name === modRole)) { 
-                        ErrorMsg('Addmoney Parancs', 'Te nem használhatod ezt a parancsot!', msg.author.id)
-                    }
-                    if (!args[0]) {
-                        ErrorMsg('Addmoney Parancs', `Megkell adnod egy számot a parancs után! Használat: ${prefix}addmoney <mennyiség> @<felhasználó>`, msg.author.id)
-                    }
-                    if (isNaN(args[0])) {
-                        ErrorMsg('Addmoney Parancs', `Megkell adnod egy **SZÁMOT** a parancs után! Használat: ${prefix}addmoney <mennyiség> @<felhasználó>`, msg.author.id)
-                    }
-                    
-                    var defineduser = ''
-                    if (!args[1]) { 
-                        defineduser = msg.author.id 
-                    } else { 
-                        var firstMentioned = msg.mentions.users.first() 
-                        defineduser = firstMentioned.id
-                    }
-                    eco.AddToBalance(defineduser, parseInt(args[0])).then((i) => {
-                        console.log(`User ${defineduser} defined had ${args[0]} added to his account.`) 
-                        msg.delete()
-                    })
                 }
 
                 // Transfer
@@ -493,7 +501,7 @@ module.exports = async function(msg, bot) {
                 }
 
                 // Add User
-                if (msg.content.startsWith(prefix + commands[32])) {
+                if (msg.content.startsWith(prefix + commands[16])) {
                     let ChannelsDB = await DB.FindOnePrivateChannels({userid: msg.author.id})
                     if(!ChannelsDB) return ErrorMsg('Add Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
                     if(ChannelsDB.channels.length === 0) return ErrorMsg('Add Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
@@ -510,7 +518,7 @@ module.exports = async function(msg, bot) {
                 }
 
                 // Remove User
-                if (msg.content.startsWith(prefix + commands[33])) {
+                if (msg.content.startsWith(prefix + commands[17])) {
                     let ChannelsDB = await DB.FindOnePrivateChannels({userid: msg.author.id})
                     if(!ChannelsDB) return ErrorMsg('Remove Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
                     if(ChannelsDB.channels.length === 0) return ErrorMsg('Remove Parancs', 'Nincs még Privát Szobád! Venni www.wearegamers.hu weboldalon, bejelentkezés után a Bolt fülnél tudsz!', msg.author.id)
@@ -534,7 +542,7 @@ module.exports = async function(msg, bot) {
             }
         
             // Suggest
-            if((msg.content.startsWith(prefix + commands[1])) && (msg.channel.name == 'javaslatok')) {
+            if((msg.content.startsWith(prefix + commands[2])) && (msg.channel.name == 'javaslatok')) {
 
                 //` Variables      
                 var suggested = []
@@ -560,7 +568,7 @@ module.exports = async function(msg, bot) {
             }
 
             // Purge
-            if(msg.content.startsWith(prefix + commands[8])) {
+            if(msg.content.startsWith(prefix + commands[9])) {
                 msg.delete()
                 if((msg.member.roles.find(x => x.name === modRole)) && (msg.channel.type != 'dm')) {
                     msg.channel.bulkDelete(100, true)
@@ -576,28 +584,32 @@ module.exports = async function(msg, bot) {
 
     // Help
     if((msg.content.startsWith(prefix + commands[0])) && (msg.embeds.length == 0)) { 
+        help = JSON.parse(fs.readFileSync('../Features/helpcmd.json', 'utf8'))
         var embed = new Discord.RichEmbed()
             .setAuthor(help.author_name, help.author_icon, help.author_url) 
             .setColor(0xff0000)
             .addField(help.serverinfo_title, help.serverinfo)
             .addField(help.szervercmd_title, help.arrows)
         
-        var helpcommands = []
-        for(var i in help.commands){
-            if(!helpcommands.includes(help.commands[i])){
-                helpcommands.push(help.commands[i])
-            }
-        }
-        var helpdescriptions = []
-        for(var i in help.descriptions){
-            if(!helpdescriptions.includes(help.descriptions[i])){
-                helpdescriptions.push(help.descriptions[i])
-            }
-        }
+            help.fields.forEach(el => {
+                embed.addField(el.name, el.desc)
+            })
 
-        for(var i=0;i<helpcommands.length;i++){
-            embed.addField(helpcommands[i], helpdescriptions[i])
-        }
+        msg.channel.send(embed)
+    }
+
+    // Music Help
+    if((msg.content.startsWith(prefix + commands[1])) && (msg.embeds.length == 0)) { 
+        help = JSON.parse(fs.readFileSync('../Features/helpcmd.json', 'utf8'))
+        var embed = new Discord.RichEmbed()
+            .setAuthor(help.author_name, help.author_icon, help.author_url) 
+            .setColor(0xff0000)
+            .addField(help.serverinfo_title, help.serverinfo)
+            .addField(help.music_title, help.arrows)
+        
+            help.Musicfields.forEach(el => {
+                embed.addField(el.name, el.desc)
+            })
 
         msg.channel.send(embed)
     }

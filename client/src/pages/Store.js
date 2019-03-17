@@ -13,7 +13,6 @@ import Channel from "./images/Private.png"
 import loading from "./images/loader.gif"
 
 const cookies = new Cookies();
-const io = socketio.connect("http://www.wearegamers.hu:8080");
 
 let gold_price = 500
 if(cookies.get('item_prices')){

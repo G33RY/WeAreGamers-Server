@@ -1,6 +1,319 @@
-#asjdasdj{
+#musicbot_header {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-image: linear-gradient(315deg, rgba(17, 201, 247, .59), rgba(69, 110, 196, .51) 49%, rgba(113, 32, 153, .45)), url("../images/music_bot_name_bg.jpg");
+    background-position: 0px 0px, 50% 50%;
+    background-size: auto, cover;
+    background-repeat: repeat, no-repeat;
+    position: relative;
+    margin: 0px;
+    left: 0px;
+    top: 0px;
+    padding: 100px 0px 135px 0px;
+    text-align: center;
+}
+#musicbot_huge-heading {
+    margin-bottom: 0px;
+    font-family: "Roboto Condensed";
+    font-size: 94px;
+    color: white;
+    letter-spacing: 5px;
+}
+@media only screen and (max-width: 1000px){
+	#musicbot_huge-heading {
+		margin-bottom: 0px;
+		font-family: "Roboto Condensed";
+		font-size: 10vw;
+		color: white;
+		letter-spacing: 3px;
+	}
+}
+@media only screen and (max-width: 315px){
+	#musicbot_huge-heading {
+		margin-bottom: 0px;
+		font-family: "Roboto Condensed";
+		font-size: 35px;
+		color: white;
+		letter-spacing: 2px;
+	}
+}
+
+
+
+#MB_Main{
     position: absolute;
-    margin: 90px;
-    color: wheat;
+    margin: 50px 0px 0px 0px;
+    padding: 0px 50px;
+    width: 100%;
+}
+#QueueBox{
+    position: relative;
+    border-collapse:collapse;
+}
+
+#QueueBodyBox{
+    padding: 20px 10px;
+    background: #3c3e41;
+    border-radius: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -ms-border-radius: 15px;
+    -o-border-radius: 15px;
+}
+
+.collumn {
+    float: left;
+    width: 50%;
+}
+
+#QueueBox thead h1{
+    font-family: 'Roboto';
+    font-size: 24px;
+    color: #fff;
+    font-weight: 400;
+}
+
+#Queue td{
+    background: #3c3e41;
+}
+
+#Queue tr:first-of-type td:first-of-type{
+    border-radius: 15px 0px 0px 0px;
+    -webkit-border-radius: 15px 0px 0px 0px;
+    -moz-border-radius: 15px 0px 0px 0px;
+    -ms-border-radius: 15px 0px 0px 0px;
+    -o-border-radius: 15px 0px 0px 0px;
+}
+
+#Queue tr:first-of-type td:last-of-type{
+    border-radius: 0px 15px 0px 0px;
+    -webkit-border-radius: 0px 15px 0px 0px;
+    -moz-border-radius: 0px 15px 0px 0px;
+    -ms-border-radius: 0px 15px 0px 0px;
+    -o-border-radius: 0px 15px 0px 0px;
+}
+
+#Queue tr:last-of-type td:first-of-type{
+    border-radius: 0px 0px 0px 15px;
+    -webkit-border-radius: 0px 0px 0px 15px;
+    -moz-border-radius: 0px 0px 0px 15px;
+    -ms-border-radius: 0px 0px 0px 15px;
+    -o-border-radius: 0px 0px 0px 15px;
+}
+
+#Queue tr:last-of-type td:last-of-type{
+    border-radius: 0px 0px 15px 0px;
+    -webkit-border-radius: 0px 0px 15px 0px;
+    -moz-border-radius: 0px 0px 15px 0px;
+    -ms-border-radius: 0px 0px 15px 0px;
+    -o-border-radius: 0px 0px 15px 0px;
+}
+
+#Queue{
+    list-style: none;
+    width: 100%;
+    padding: 20px 10px;
+    border-radius: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -ms-border-radius: 15px;
+    -o-border-radius: 15px;
+}
+.SongNumber{
+    color: #ecf0f1;
+    font-size: 25px;
+    width: 10%;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 38px;
+}
+
+.SongTitle{
+    z-index: 110;
+    position: relative;
+    width: 75%;
+    min-width: 110px;
+    height: 40px;
+    background:url("../images/line90.jpg") center right no-repeat;
+    background-size: 1px 30px;
+
+}
+
+.SongButtons{
+    position: relative;
+    height: 40px;
+}
+
+.SongTitle a{
+    text-decoration: underline;
+    display: block;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 0px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 20px;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -o-transform: translateY(-50%);
+}
+
+.SongButtons button{
+    color: #ecf0f1;
+    font-size: 25px;
+    text-align: center;
+    line-height: 38px;
+    margin: 0px 5px;
+}
+
+.SongButtons div{
+    display: block;
+    width: 88px;
+    height: 40px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -o-transform: translateX(-50%);
+}
+
+@media only screen and (max-width: 750px) {
+    .collumn {
+        width: 100%;
+    }
+}
+
+thead h1{
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+thead{
+    text-align: center;
+    
+}
+
+/* Second Card */
+#SecondCardBox{
+    padding: 30px 20px 20px 50px;
+}
+
+#AddSong{
+    position: relative;
+    left: 50%;
+    width: 80%;
+    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -o-transform: translateX(-50%);
+}
+
+#AddSong h1{
+    font-size: 20px;
+    font-family: 'Roboto Condensed';
+    color: #ecf0f1;
+    font-weight: 400;
+}
+
+#AddBox{
+    font-size: 25px;
+    font-family: 'Roboto Condensed';
+    color: black;
+    font-weight: 400;
+    padding: 0px 10px 0px 15px;
+    width: 70%;
+    height: 50px;
+    outline: none;
+    border: 0px;
+    border-radius: 20px 0px 0px 20px;
+    -webkit-border-radius: 20px 0px 0px 20px;
+    -moz-border-radius: 20px 0px 0px 20px;
+    -ms-border-radius: 20px 0px 0px 20px;
+    -o-border-radius: 20px 0px 0px 20px;
+}
+
+#SubmitBox{
+    position: relative;
+    left: -2px;
+    top: 1px;
+    font-size: 30px;
+    font-family: 'Roboto Condensed';
+    color: #ecf0f1;
+    font-weight: 400;
+    width: 30%;
+    height: 50px;
+    border: 0px;
+    outline: none;
     cursor: pointer;
+    border-radius: 0px 20px 20px 0px;
+    -webkit-border-radius: 0px 20px 20px 0px;
+    -moz-border-radius: 0px 20px 20px 0px;
+    -ms-border-radius: 0px 20px 20px 0px;
+    -o-border-radius: 0px 20px 20px 0px;
+    background: #27ae60;
+}
+
+#Commands{
+    margin: 60px 0px 0px 0px;
+}
+
+#CommandsTitle{
+    text-align: center;
+    color: #ecf0f1;
+    font-weight: 400;
+    margin: 50px 0px;
+}
+
+#CommandsTitle p{
+    margin: 0px;
+    text-align: center;
+    color: #ecf0f1;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+#CommandsTitle i{
+    text-align: center;
+    color: #ecf0f1;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.CommandsSubTitle{
+    text-align: center;
+    color: #ecf0f1;
+    font-size: 25px;
+    font-weight: 400;
+    margin: 60px 0px 30px 0px;
+}
+
+dl dt{
+    font-size: 20px;
+    color: #ecf0f1;
+    text-decoration: underline;
+    letter-spacing: 2px;
+}
+
+dl dd:first-of-type{
+    margin: 10px 0px 15px 50px;
+    font-size: 18px;
+    color: #bdc3c7;
+    margin: 10px 0px 50px 50px;
+}
+
+dl dd{
+    margin: 10px 0px 15px 50px;
+    font-size: 18px;
+    color: #bdc3c7;
 }

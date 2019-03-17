@@ -4,6 +4,10 @@ body{
     font-family: "Roboto Condensed";
 }
 
+main{
+    padding: 60px 0px 0px 0px;
+}
+
 nav{
     width: 100%;
     background: #2A2A2A;
@@ -165,6 +169,7 @@ nav{
     color: #2A2A2A;
 }
 .toggle{
+    /* position: absolute; */
     z-index: 1001;
     padding: 17px 20px;
     text-align: right;

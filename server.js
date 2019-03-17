@@ -79,11 +79,10 @@ const io = socketio(server)
 io.on('connection',  async (socket) => {
     let items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
 
-    // Log User's ip
+    // Log ip
     socket.on('userip', function (data) {
         console.log(`User Connected: ${data.loc} - ${data.ip}`)
     })
-
 
     // Handle Buy/Sell
     socket.on('buy', function(data){
@@ -182,6 +181,11 @@ io.on('connection',  async (socket) => {
     if(socket.handshake.query.userid && bot.guilds.array()[0]){
         let userid = socket.handshake.query.userid
         const member = bot.guilds.array()[0].members.get(userid)
+
+        // Log User's ip
+        socket.on('memberip', function (data) {
+            console.log(`${bot.guilds.array()[0].members.get(userid).displayName} Connected: ${data.loc} - ${data.ip}`)
+        })
 
         // Send Items Price
         items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
@@ -684,7 +688,8 @@ io.on('connection',  async (socket) => {
         })
         Queues.watch({
             fullDocument: 'updateLookup'
-        }).on('change', async change => {
+        }).on('change', change => {
+            console.log("FASZ")
             if (change.fullDocument.userid === userid) {
                 return socket.emit('OnChange_NewQueue', change.fullDocument.queue)
             }
@@ -736,21 +741,21 @@ io.on('connection',  async (socket) => {
         })
 
         // Send Chart Datas
-        let msg_day_0 = await MessageCounters.count({userid: userid, added_on: moment().subtract(0, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let msg_day_1 = await MessageCounters.count({userid: userid, added_on: moment().subtract(1, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let msg_day_2 = await MessageCounters.count({userid: userid, added_on: moment().subtract(2, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let msg_day_3 = await MessageCounters.count({userid: userid, added_on: moment().subtract(3, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let msg_day_4 = await MessageCounters.count({userid: userid, added_on: moment().subtract(4, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let msg_day_5 = await MessageCounters.count({userid: userid, added_on: moment().subtract(5, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let msg_day_6 = await MessageCounters.count({userid: userid, added_on: moment().subtract(6, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let msg_day_0 = await MessageCounters.countDocuments({userid: userid, added_on: moment().subtract(0, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let msg_day_1 = await MessageCounters.countDocuments({userid: userid, added_on: moment().subtract(1, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let msg_day_2 = await MessageCounters.countDocuments({userid: userid, added_on: moment().subtract(2, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let msg_day_3 = await MessageCounters.countDocuments({userid: userid, added_on: moment().subtract(3, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let msg_day_4 = await MessageCounters.countDocuments({userid: userid, added_on: moment().subtract(4, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let msg_day_5 = await MessageCounters.countDocuments({userid: userid, added_on: moment().subtract(5, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let msg_day_6 = await MessageCounters.countDocuments({userid: userid, added_on: moment().subtract(6, 'days').add(0, 'hours').format('YYYY MM DD')})
 
-        let cmd_day_0 = await CommandCounters.count({userid: userid, added_on: moment().subtract(0, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let cmd_day_1 = await CommandCounters.count({userid: userid, added_on: moment().subtract(1, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let cmd_day_2 = await CommandCounters.count({userid: userid, added_on: moment().subtract(2, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let cmd_day_3 = await CommandCounters.count({userid: userid, added_on: moment().subtract(3, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let cmd_day_4 = await CommandCounters.count({userid: userid, added_on: moment().subtract(4, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let cmd_day_5 = await CommandCounters.count({userid: userid, added_on: moment().subtract(5, 'days').add(0, 'hours').format('YYYY MM DD')})
-        let cmd_day_6 = await CommandCounters.count({userid: userid, added_on: moment().subtract(6, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let cmd_day_0 = await CommandCounters.countDocuments({userid: userid, added_on: moment().subtract(0, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let cmd_day_1 = await CommandCounters.countDocuments({userid: userid, added_on: moment().subtract(1, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let cmd_day_2 = await CommandCounters.countDocuments({userid: userid, added_on: moment().subtract(2, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let cmd_day_3 = await CommandCounters.countDocuments({userid: userid, added_on: moment().subtract(3, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let cmd_day_4 = await CommandCounters.countDocuments({userid: userid, added_on: moment().subtract(4, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let cmd_day_5 = await CommandCounters.countDocuments({userid: userid, added_on: moment().subtract(5, 'days').add(0, 'hours').format('YYYY MM DD')})
+        let cmd_day_6 = await CommandCounters.countDocuments({userid: userid, added_on: moment().subtract(6, 'days').add(0, 'hours').format('YYYY MM DD')})
         socket.emit('chartdatas', {
             day_0: {
                 date: moment().subtract(0, 'days').add(0, 'hours').format('MM-DD'),
@@ -789,7 +794,6 @@ io.on('connection',  async (socket) => {
             },
         })
     }
-
 
     // Detect if user leave from the server
     socket.on('userleftfromserver', async function (data) {

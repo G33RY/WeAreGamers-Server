@@ -6,29 +6,115 @@
     "serverinfo_title": "__**Szerver Információk:**__",
     "serverinfo": "**🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻**\nA szerveren szabadon használhatod a Bot parancsokat, és ha szeretnél az \nAdmin-októl kérhetsz saját szobát is! A Music Bot használatához a !store parancsot beirva tudod megvenni a rangot hozzá. Pénzt, kereskedéssel, a parancsok használatával és a szerveren való játékkal tudsz keresni.\n __***A szerveren linkeket a Belépő szobába tudod beküldeni máshova nem lehet!***__\n __***A chat spam-elése a szerverről való kitiltással jár!***__\n __***A parancsokat csak a bot-parancsok szobában tudod használni!***__\n**🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹**\n",
     "szervercmd_title": "__**Szerver Parancsok:**__",
-    "arrows": "__Jelek jelentései:__  [] = Nem muszály megadnod ezt a paramétert || {} = Meg kell adnod ezt a paramétert *(Ne ird oda a jelet!)* \n**🠻🠻🠻🠻🠻 🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻**",
+    "music_title": "__**MusicBot Parancsai:**__",
+    "arrows": "__Jelek jelentései:__  { } = Nem muszály megadnod ezt a paramétert || [ ] = Meg kell adnod ezt a paramétert *(Ne ird oda a jelet!)* \n**🠻🠻🠻🠻🠻 🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻🠻**",
     
-    "commands": {
-        "help_cmd": "!help",
-        "ping_cmd": "!ping",
-        "store_cmd": "!store [tárgy neve]",
-        "bank_cmd": "!bank",
-        "leaderboard_cmd": "!leaderboard",
-        "suggest_cmd": "!suggest {üzenet}",
-        "serverinfo_cmd": "!serverinfo",
-        "userinfo_cmd": "!userinfo {@felhasználó}",
-        "transfer_cmd": "!transfer {@felhasználó} {mennyiség}"
-    },
-
-    "descriptions": {
-        "help_desc": "Segítség a szerverrel és a botok parancsaival kapcsolatban.",
-        "ping_desc": "Megnézheted a bot válasz idejét a szerverrel.",
-        "store_desc": "Áruház ahol felhasználhatod a pénzedet.",
-        "bank_desc": "bank egyenleged.",
-        "leaderboard_desc": "Nézd meg a szerver 5 leggazdagabb felasználóját!",
-        "suggest_desc": "Ha szeretnél az adminokkal megosztani valami javaslatot/problémát a szerverrel vagy a bot-okkal kapcsolatban, akkor használd egyszerűen ezt parancsot a **javaslatok** szobába és üzenj névtelenül egyszerre az összes elérhető adminnak!",
-        "serverinfo_desc": "Szerver statisztikái.",
-        "userinfo_desc": "Egy felhasználó statisztikái.",
-        "transfer_desc": "Pénz utalás egy felhasználónak. \n**🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹**\n"
-    }    
+    "fields":[
+        {
+            "name": "!help",
+            "desc": "Segítség a szerverrel és a botok parancsaival kapcsolatban."
+        },
+        {
+            "name": "!ping",
+            "desc": "Megnézheted a bot válasz idejét a szerverrel."
+        },
+        {
+            "name": "!store {tárgy neve}",
+            "desc": "Áruház ahol felhasználhatod a pénzedet."
+        },
+        {
+            "name": "!bank",
+            "desc": "Megnézheted a bank egyenleged."
+        },
+        {
+            "name": "!leaderboard",
+            "desc": "Nézd meg a szerver 5 leggazdagabb felasználóját!"
+        },
+        {
+            "name": "!suggest [üzenet]",
+            "desc": "Ha szeretnél az adminokkal megosztani valami javaslatot/problémát a szerverrel vagy a bot-okkal kapcsolatban, akkor használd egyszerűen ezt parancsot a **javaslatok** szobába és üzenj névtelenül egyszerre az összes elérhető adminnak!"
+        },
+        {
+            "name": "!serverinfo",
+            "desc": "Szerver statisztikái."
+        },
+        {
+            "name": "!userinfo {@felhasználó}",
+            "desc": "Egy felhasználó statisztikái."
+        },
+        {
+            "name": "!transfer [@felhasználó] [mennyiség]",
+            "desc": "Pénz utalás egy felhasználónak."
+        },
+        {
+            "name": "!adduser [@felhasználó]",
+            "desc": "Egy felhasználó hozzáadása a privát szobádhoz."
+        },
+        {
+            "name": "!removeuser [@felhasználó]",
+            "desc": "Egy felhasználó eltávolítása a privát szobádból.\n**🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹🠹**"
+        }
+    ],
+    "Musicfields":[
+        {
+            "name": "!join",
+            "desc": "Valamelyik elérhető bot becsatlakozik a szobádba ha nincs bent egyik bot sem."
+        },
+        {
+            "name": "!leave",
+            "desc": "Szobádban lévő bot kilép."
+        },
+        {
+            "name": "!play [Lejátszani kívánt zene száma vagy YouTube URL]",
+            "desc": "Valamelyik elérhető bot becsatlakozik a szobádba ha nincs bent egyik bot sem és lejátsza a megadott zenét."
+        },
+        {
+            "name": "!stop",
+            "desc": "Leállítja a jelenleg játszott zenét."
+        },
+        {
+            "name": "!skip",
+            "desc": "Lejátsza a következő zenét."
+        },
+        {
+            "name": "!back",
+            "desc": "Lejátsza az előző zenét."
+        },
+        {
+            "name": "!pause",
+            "desc": "Megállitja a jelenleg játszott zenét."
+        },
+        {
+            "name": "!resume",
+            "desc": "Elindítja a jelenleg játszott zenét."
+        },
+        {
+            "name": "!shuffle",
+            "desc": "Ha vége a zenének akkor véletlenszerűen választ következő zenét."
+        },
+        {
+            "name": "!repeat",
+            "desc": "Ha vége a zenének akkor lejátsza újra."
+        },
+        {
+            "name": "!norepeat",
+            "desc": "Ha vége a zenének akkor a lejátszási listádban a jelenlegi zene után következőt."
+        },
+        {
+            "name": "!add [YouTube URL]",
+            "desc": "Hozzáadadja a megadott zenét a lejátszási listádhoz ha van még benne hely. (Lejátszási Listád maximum 20 zenét tartalmazhat!)"
+        },
+        {
+            "name": "!remove [Törölni kívánt zene száma a Lejátszási Listádból]",
+            "desc": "Eltávolítja a megadott zenét a Lejátszási Listádból."
+        },
+        {
+            "name": "!queue",
+            "desc": "Elküldi a bot privát üzenetben a Lejátszási Listádat."
+        },
+        {
+            "name": "!search [Keresendő szó]",
+            "desc": "Youtube keresés."
+        }
+    ]
 }
