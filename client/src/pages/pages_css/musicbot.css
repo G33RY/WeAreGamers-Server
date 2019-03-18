@@ -74,46 +74,29 @@
     font-weight: 400;
 }
 
-#Queue td{
-    background: #3c3e41;
-}
-
 #Queue tr:first-of-type td:first-of-type{
-    border-radius: 15px 0px 0px 0px;
-    -webkit-border-radius: 15px 0px 0px 0px;
-    -moz-border-radius: 15px 0px 0px 0px;
-    -ms-border-radius: 15px 0px 0px 0px;
-    -o-border-radius: 15px 0px 0px 0px;
+    border-top-left-radius: 15px;
 }
 
 #Queue tr:first-of-type td:last-of-type{
-    border-radius: 0px 15px 0px 0px;
-    -webkit-border-radius: 0px 15px 0px 0px;
-    -moz-border-radius: 0px 15px 0px 0px;
-    -ms-border-radius: 0px 15px 0px 0px;
-    -o-border-radius: 0px 15px 0px 0px;
+    border-top-right-radius: 15px;
 }
 
 #Queue tr:last-of-type td:first-of-type{
-    border-radius: 0px 0px 0px 15px;
-    -webkit-border-radius: 0px 0px 0px 15px;
-    -moz-border-radius: 0px 0px 0px 15px;
-    -ms-border-radius: 0px 0px 0px 15px;
-    -o-border-radius: 0px 0px 0px 15px;
+    border-bottom-left-radius: 15px;
 }
 
 #Queue tr:last-of-type td:last-of-type{
-    border-radius: 0px 0px 15px 0px;
-    -webkit-border-radius: 0px 0px 15px 0px;
-    -moz-border-radius: 0px 0px 15px 0px;
-    -ms-border-radius: 0px 0px 15px 0px;
-    -o-border-radius: 0px 0px 15px 0px;
+    border-bottom-right-radius: 15px;
 }
 
 #Queue{
+    /* display: block; */
+    background: #3c3e41;
+    min-height: 30px;
     list-style: none;
     width: 100%;
-    padding: 20px 10px;
+    padding: 20px 0px;
     border-radius: 15px;
     -webkit-border-radius: 15px;
     -moz-border-radius: 15px;
@@ -167,7 +150,7 @@
 
 .SongButtons button{
     color: #ecf0f1;
-    font-size: 25px;
+    font-size: 23px;
     text-align: center;
     line-height: 38px;
     margin: 0px 5px;
@@ -186,12 +169,6 @@
     -o-transform: translateX(-50%);
 }
 
-@media only screen and (max-width: 750px) {
-    .collumn {
-        width: 100%;
-    }
-}
-
 thead h1{
     display: block;
     width: 100%;
@@ -200,7 +177,24 @@ thead h1{
 
 thead{
     text-align: center;
-    
+}
+
+.BorderRow:nth-of-type(1) td{
+    height: 30px;
+    border-radius: 20px 20px 0px 0px;
+    -webkit-border-radius: 20px 20px 0px 0px;
+    -moz-border-radius: 20px 20px 0px 0px;
+    -ms-border-radius: 20px 20px 0px 0px;
+    -o-border-radius: 20px 20px 0px 0px;
+}
+
+.BorderRow:nth-of-type(2) td{
+    height: 30px;
+    border-radius: 0px 0px 20px 20px;
+    -webkit-border-radius: 0px 0px 20px 20px;
+    -moz-border-radius: 0px 0px 20px 20px;
+    -ms-border-radius: 0px 0px 20px 20px;
+    -o-border-radius: 0px 0px 20px 20px;
 }
 
 /* Second Card */
@@ -209,9 +203,10 @@ thead{
 }
 
 #AddSong{
+    display: inline-block;
     position: relative;
     left: 50%;
-    width: 80%;
+    width: 90%;
     transform: translateX(-50%);
     -webkit-transform: translateX(-50%);
     -moz-transform: translateX(-50%);
@@ -232,7 +227,7 @@ thead{
     color: black;
     font-weight: 400;
     padding: 0px 10px 0px 15px;
-    width: 70%;
+    width: 80%;
     height: 50px;
     outline: none;
     border: 0px;
@@ -244,14 +239,18 @@ thead{
 }
 
 #SubmitBox{
+    display: inline-block;
+    color: white;
     position: relative;
     left: -2px;
     top: 1px;
     font-size: 30px;
+    margin: 0px;
+    padding: 0px;
     font-family: 'Roboto Condensed';
     color: #ecf0f1;
     font-weight: 400;
-    width: 30%;
+    width: 20%;
     height: 50px;
     border: 0px;
     outline: none;
@@ -261,7 +260,7 @@ thead{
     -moz-border-radius: 0px 20px 20px 0px;
     -ms-border-radius: 0px 20px 20px 0px;
     -o-border-radius: 0px 20px 20px 0px;
-    background: #27ae60;
+    background: #27ae5f;
 }
 
 #Commands{
@@ -306,7 +305,6 @@ dl dt{
 }
 
 dl dd:first-of-type{
-    margin: 10px 0px 15px 50px;
     font-size: 18px;
     color: #bdc3c7;
     margin: 10px 0px 50px 50px;
@@ -316,4 +314,121 @@ dl dd{
     margin: 10px 0px 15px 50px;
     font-size: 18px;
     color: #bdc3c7;
+}
+#mb_errors{
+    margin: 30px 0px 0px 0px;
+}
+
+.asd:hover{
+    color: #27ae60;
+}
+
+.fasz:hover{
+    color: #e74c3c;
+}
+
+
+@media only screen and (max-width: 750px) {
+    .collumn {
+        width: 100%;
+    }
+    .CommandsSubTitle{
+        margin: 60px 0px 30px 0px;
+    }
+
+    #SecondCardBox{
+        padding: 30px 0px 20px 0px;
+        margin: 0px;
+    }
+        
+    dl dt{
+        font-size: 20px;
+        color: #ecf0f1;
+        text-decoration: underline;
+        letter-spacing: 2px;
+    }
+
+    dl dd{
+        margin: 10px 0px 15px 40px;
+        font-size: 18px;
+        color: #bdc3c7;
+    }
+    
+    #AddSong{
+        position: relative;
+        left: 50%;
+        width: 100%;
+        transform: translateX(-50%);
+        -webkit-transform: translateX(-50%);
+        -moz-transform: translateX(-50%);
+        -ms-transform: translateX(-50%);
+        -o-transform: translateX(-50%);
+    }
+
+}
+
+@keyframes lds-rolling {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+        -webkit-transform: translate(-50%, -50%) rotate(0deg);
+        -moz-transform: translate(-50%, -50%) rotate(0deg);
+        -ms-transform: translate(-50%, -50%) rotate(0deg);
+        -o-transform: translate(-50%, -50%) rotate(0deg);
+}
+    100% {
+        transform: translate(-50%, -50%) rotate(0deg);
+        -webkit-transform: translate(-50%, -50%) rotate(0deg);
+        -moz-transform: translate(-50%, -50%) rotate(0deg);
+        -ms-transform: translate(-50%, -50%) rotate(0deg);
+        -o-transform: translate(-50%, -50%) rotate(0deg);
+    }
+}
+@-webkit-keyframes lds-rolling {
+0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    -moz-transform: translate(-50%, -50%) rotate(0deg);
+    -ms-transform: translate(-50%, -50%) rotate(0deg);
+    -o-transform: translate(-50%, -50%) rotate(0deg);
+}
+100% {
+    transform: translate(-50%, -50%) rotate(0deg);
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    -moz-transform: translate(-50%, -50%) rotate(0deg);
+    -ms-transform: translate(-50%, -50%) rotate(0deg);
+    -o-transform: translate(-50%, -50%) rotate(0deg);
+}
+}
+
+.rolling, .rolling:after {
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border: 5px solid #ffffff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    -webkit-border-radius:;
+    -moz-border-radius:;
+    -ms-border-radius:;
+    -o-border-radius:;
+}
+.rolling {
+    animation: lds-rolling 1s linear infinite;
+    -webkit-animation: lds-rolling 1s linear infinite;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+}
+.rolling:after {
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
 }

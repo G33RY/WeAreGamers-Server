@@ -86,6 +86,9 @@ module.exports = function(app){
                                 userbalance: economy.balance,
                                 avatar: avatarlink
                         }, {expires: farFuture})
+                        const UserQueue = await DB.FindOneQueue({userid: user.id})
+                        const queue = UserQueue.queue
+                        await res.cookie('queue', queue)
                     }   
                 }
         }

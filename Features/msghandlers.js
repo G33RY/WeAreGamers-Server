@@ -179,7 +179,7 @@ module.exports = async function(msg, bot) {
                             const member = await DB.FindOneInventory({userid: msg.author.id})
                             if((itemName == 'DJ') && (member.DJ == 0)){
                                 if (i.balance < itemPrice){
-                                    ErrorMsg('Store Parancs', 'Nincs elég pénzed!', msg.member.id)
+                                    ErrorMsg('Store Parancs', 'Nincs elég pénzed!', msg.member.user.id)
                                     
                                 }else if(i.balance >= itemPrice){
                                     await DB.UpdateInventory({userid: msg.author.id}, {DJ: 1})
@@ -193,7 +193,7 @@ module.exports = async function(msg, bot) {
                                 
                             }else if(itemName != 'DJ'){
                                 if (i.balance < itemPrice){
-                                    ErrorMsg('Store Parancs', 'Nincs elég pénzed!', msg.member.id)
+                                    ErrorMsg('Store Parancs', 'Nincs elég pénzed!', msg.member.user.id)
                                 }else if((i.balance > itemPrice) || (i.balance = itemPrice)){
                                     if(itemName == 'Arany'){
                                         await DB.UpdateInventory({userid: msg.author.id}, {Arany: member.Arany + 1})

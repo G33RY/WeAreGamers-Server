@@ -243,41 +243,41 @@ io.on('connection',  async (socket) => {
         {
             // Emits:
             //          - Join: 
-            //                  - Join_UserNotInChannel
+            //                  - UserNotInChannel
             //                  - Join_BotsInUse
             //                  - Join_Sucess => Bot Name
             //          - Leave: 
-            //                  - Leave_BotsNotInChannels
+            //                  - BotsNotInChannels
             //                  - Leave_BotsInUse
             //                  - Leave_Sucess => Bot Name
             //          - Play: 
-            //                  - Play_SomethingWentWrong
-            //                  - Play_UserNotInChannel
+            //                  - SomethingWentWrong
+            //                  - UserNotInChannel
             //                  - Play_UrlNotValid
             //                  - Play_BotsInUse
             //                  - Play_Sucess => Bot Name
             //          - Stop: 
-            //                  - Stop_BotsNotInChannels
+            //                  - BotsNotInChannels
             //                  - Stop_Sucess => Bot Name
             //          - Skip: 
-            //                  - Skip_BotsNotInChannel
-            //                  - Skip_UserNotInChannel
+            //                  - BotsNotInChannels
+            //                  - UserNotInChannel
             //          - Back: 
-            //                  - Back_BotsNotInChannel
-            //                  - Back_UserNotInChannel
+            //                  - BotsNotInChannels
+            //                  - UserNotInChannel
             //          - Pause: 
-            //                  - Pause_UserNotInChannel
-            //                  - Pause_BotsNotInChannel
+            //                  - UserNotInChannel
+            //                  - BotsNotInChannels
             //          - Resume: 
-            //                  - Resume_UserNotInChannel
-            //                  - Resume_BotsNotInChannel
+            //                  - UserNotInChannel
+            //                  - BotsNotInChannels
             //          - Add: 
-            //                  - Add_SomethingWentWrong
+            //                  - SomethingWentWrong
             //                  - Add_UrlNotValid
             //                  - Add_LimitReached
             //                  - Add_SongAlreadyIn
             //          - Remove: 
-            //                  - Remove_SomethingWentWrong
+            //                  - SomethingWentWrong
             //                  - Remove_UrlNotValid
             //                  - Remove_LimitReached
             //                  - Remove_SongNotInQueue
@@ -285,14 +285,14 @@ io.on('connection',  async (socket) => {
             //                  - Remove_NumberError
             //                  - Remove_Sucess => Removed Tittle
             //          - Shuffle: 
-            //                  - Shuffle_UserNotInChannel
-            //                  - Shuffle_BotsNotInChannel
+            //                  - UserNotInChannel
+            //                  - BotsNotInChannels
             //          - Repeat: 
-            //                  - Repeat_UserNotInChannel
-            //                  - Repeat_BotsNotInChannel
+            //                  - UserNotInChannel
+            //                  - BotsNotInChannels
             //          - NoRepeat: 
-            //                  - NoRepeat_UserNotInChannel
-            //                  - NoRepeat_BotsNotInChannel
+            //                  - NoUserNotInChannel
+            //                  - BotsNotInChannels
             //          - OnChangeByClient: 
             //                  - OnChangeByClient_Error
             //                  - OnChangeByClient_Sucess
@@ -300,9 +300,10 @@ io.on('connection',  async (socket) => {
             //                  - OnChange_NewQueue
 
         }
+        let artificallyQueueUpdate = false
         socket.on('join', async (data) => {
             console.log('join' + ' ' + bot.guilds.array()[0].members.get(userid).displayName)
-            if(!bot.guilds.array()[0].members.get(userid).voiceChannel) return socket.emit('Join_UserNotInChannel', null)
+            if(!bot.guilds.array()[0].members.get(userid).voiceChannel) return socket.emit('UserNotInChannel', null)
             console.log('join0')
             const UserVoice = bot.guilds.array()[0].members.get(userid).voiceChannel
             let avaiableBots = []
@@ -384,62 +385,66 @@ io.on('connection',  async (socket) => {
             }
 
             
-            if(bot1NotIn && bot2NotIn) return socket.emit('Leave_BotsNotInChannels', null)
+            if(bot1NotIn && bot2NotIn) return socket.emit('BotsNotInChannels', null)
             if(bot1NotInThis && bot2NotInThis) return socket.emit('Leave_BotsInUse', null)
         })
         socket.on('play', async (data) => {
-            const url = data.url
-            if(!bot.guilds.array()[0].members.get(userid).voiceChannel) return socket.emit('Play_UserNotInChannel', null)
-            if(!url) return socket.emit('Play_SomethingWentWrong', null)
-            if (!ytdl.validateURL(url)) return socket.emit('Play_UrlNotValid', null)
-
-
-            const User = bot.guilds.array()[0].members.get(userid)
-            const Bot1Voice = bot.guilds.array()[0].members.get(bots[0]).voiceChannel
-            const Bot2Voice = bot.guilds.array()[0].members.get(bots[1]).voiceChannel
-            let avaiableBots = []
-
-            if(Bot1Voice){
-                if(Bot1Voice.members.get(User.id)){
+            let num = data.num
+            if(num){
+                num = parseInt(num)
+                if(isNaN(num)) return socket.emit('SomethingWentWrong', null)
+                if(!bot.guilds.array()[0].members.get(userid).voiceChannel) return socket.emit('UserNotInChannel', null)
+                console.log('faz')
+                const UserQueue = await DB.FindOneQueue({userid: userid})
+                const Queue = UserQueue.queue
+                const Url = Queue[num].url
+                if (!ytdl.validateURL(Url)) return socket.emit('Play_UrlNotValid', null)
+    
+                console.log('fasz')    
+                const User = bot.guilds.array()[0].members.get(userid)
+                const Bot1Voice = bot.guilds.array()[0].members.get(bots[0]).voiceChannel
+                const Bot2Voice = bot.guilds.array()[0].members.get(bots[1]).voiceChannel
+                let avaiableBots = []
+    
+                if(Bot1Voice){
+                    if(Bot1Voice.members.get(User.id)){
+                        avaiableBots.push(bots[0])
+                    }
+                }else if(!Bot1Voice){
                     avaiableBots.push(bots[0])
                 }
-            }else if(!Bot1Voice){
-                avaiableBots.push(bots[0])
-            }
-            if(avaiableBots.length === 0){
-                console.log( '1 ' + avaiableBots)
-                if(Bot2Voice){
-                    if(Bot2Voice.members.get(User.id)){
+                if(avaiableBots.length === 0){
+                    if(Bot2Voice){
+                        if(Bot2Voice.members.get(User.id)){
+                            avaiableBots.push(bots[1])
+                        }
+                    }else if(!Bot2Voice){
                         avaiableBots.push(bots[1])
                     }
-                }else if(!Bot2Voice){
-                    avaiableBots.push(bots[1])
                 }
-            }
-            
 
-            console.log( '2 ' + avaiableBots)
-            if(avaiableBots.length === 0) return socket.emit('Play_BotsInUse', null)
-
-            if(avaiableBots.length === 2){
-                let rand = Math.round(Math.random())
-
-                if(rand === 0){
-                    bot1.play(`${url};${userid}`)
-                    console.log( '3 ' + avaiableBots)
-                    return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[0]).displayName)
-                }else if(rand === 1){
-                    bot2.play(`${url};${userid}`)
-                    console.log( '4 ' + avaiableBots)
-                    return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[1]).displayName)
-                }
-            }else if(avaiableBots.length === 1){
-                if(avaiableBots[0] === bots[0]){
-                    bot1.play(`${url};${userid}`)
-                    return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[0]).displayName)
-                }else if(avaiableBots[0] === bots[1]){
-                    bot2.play(`${url};${userid}`)
-                    return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[1]).displayName)
+                if(avaiableBots.length === 0) return socket.emit('Play_BotsInUse', null)
+    
+                if(avaiableBots.length === 2){
+                    let rand = Math.round(Math.random())
+    
+                    if(rand === 0){
+                        bot1.play(`${Url};${userid}`)
+                        console.log( '3 ' + avaiableBots)
+                        return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[0]).displayName)
+                    }else if(rand === 1){
+                        bot2.play(`${Url};${userid}`)
+                        console.log( '4 ' + avaiableBots)
+                        return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[1]).displayName)
+                    }
+                }else if(avaiableBots.length === 1){
+                    if(avaiableBots[0] === bots[0]){
+                        bot1.play(`${Url};${userid}`)
+                        return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[0]).displayName)
+                    }else if(avaiableBots[0] === bots[1]){
+                        bot2.play(`${Url};${userid}`)
+                        return socket.emit('Play_Sucess', bot.guilds.array()[0].members.get(bots[1]).displayName)
+                    }
                 }
             }
             
@@ -464,10 +469,10 @@ io.on('connection',  async (socket) => {
             }else if(bot.guilds.array()[0].members.get(bots[1]).voiceChannel.id != UserVoiceID){
                 bot2NotInThis = true
             }
-            if(bot1NotInThis && bot2NotInThis) return socket.emit('Stop_BotsNotInChannels', null)
+            if(bot1NotInThis && bot2NotInThis) return socket.emit('BotsNotInChannels', null)
         })
         socket.on('skip', async (data) => {
-            if(!member.voiceChannel) return socket.emit('Skip_UserNotInChannel', null)
+            if(!member.voiceChannel) return socket.emit('UserNotInChannel', null)
             console.log('fasz')
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
@@ -484,11 +489,11 @@ io.on('connection',  async (socket) => {
                     bot2.skip(member)
                 }
             }else{
-                return socket.emit('Skip_BotsNotInChannel', null)
+                return socket.emit('BotsNotInChannels', null)
             }  
         })
         socket.on('back', async (data) => {
-            if(!member.voiceChannel) return socket.emit('Back_UserNotInChannel', null)
+            if(!member.voiceChannel) return socket.emit('UserNotInChannel', null)
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
                 if(m.id === bots[0]){
@@ -504,11 +509,11 @@ io.on('connection',  async (socket) => {
                     bot2.back(member)
                 }
             }else{
-                return socket.emit('Back_BotsNotInChannel', null)
+                return socket.emit('BotsNotInChannels', null)
             }  
         })
         socket.on('pause', async (data) => {
-            if(!member.voiceChannel) return socket.emit('Pause_UserNotInChannel', null)
+            if(!member.voiceChannel) return socket.emit('UserNotInChannel', null)
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
                 if(m.id === bots[0]){
@@ -524,11 +529,11 @@ io.on('connection',  async (socket) => {
                     bot2.pause()
                 }
             }else{
-                return socket.emit('Pause_BotsNotInChannel', null)
+                return socket.emit('BotsNotInChannels', null)
             }
         })
         socket.on('resume', async (data) => {
-            if(!member.voiceChannel) return socket.emit('Resume_UserNotInChannel', null)
+            if(!member.voiceChannel) return socket.emit('UserNotInChannel', null)
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
                 if(m.id === bots[0]){
@@ -544,11 +549,11 @@ io.on('connection',  async (socket) => {
                     bot2.resume()
                 }
             }else{
-                return socket.emit('Resume_BotsNotInChannel', null)
+                return socket.emit('BotsNotInChannels', null)
             }
         })
         socket.on('shuffle', async (data) => {
-            if(!member.voiceChannel) return socket.emit('Shuffle_UserNotInChannel', null)
+            if(!member.voiceChannel) return socket.emit('UserNotInChannel', null)
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
                 if(m.id === bots[0]){
@@ -564,11 +569,11 @@ io.on('connection',  async (socket) => {
                     bot2.shuffle()
                 }
             }else{
-                return socket.emit('Shuffle_BotsNotInChannel', null)
+                return socket.emit('BotsNotInChannels', null)
             }   
         })
         socket.on('repeat', async (data) => {
-            if(!member.voiceChannel) return socket.emit('Repeat_UserNotInChannel', null)
+            if(!member.voiceChannel) return socket.emit('UserNotInChannel', null)
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
                 if(m.id === bots[0]){
@@ -584,11 +589,11 @@ io.on('connection',  async (socket) => {
                     bot2.repeat()
                 }
             }else{
-                return socket.emit('Repeat_BotsNotInChannel', null)
+                return socket.emit('BotsNotInChannels', null)
             }   
         })
         socket.on('norepeat', async (data) => {
-            if(!member.voiceChannel) return socket.emit('NoRepeat_UserNotInChannel', null)
+            if(!member.voiceChannel) return socket.emit('NoUserNotInChannel', null)
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
                 if(m.id === bots[0]){
@@ -604,12 +609,12 @@ io.on('connection',  async (socket) => {
                     bot2.norepeat()
                 }
             }else{
-                return socket.emit('NoRepeat_BotsNotInChannel', null)
+                return socket.emit('BotsNotInChannels', null)
             }   
         })
         socket.on('add', async (data) => {
             const url = data.url
-            if (!url) return socket.emit('Add_SomethingWentWrong', null)
+            if (!url) return socket.emit('SomethingWentWrong', null)
             if (!ytdl.validateURL(url)) return socket.emit('Add_UrlNotValid', null)
             ytdl.getBasicInfo(url).then(async m => {
                 const UserQueue = await DB.FindOneQueue({userid: userid})
@@ -624,7 +629,12 @@ io.on('connection',  async (socket) => {
                     if(asd){ 
                         return socket.emit('Add_SongAlreadyIn', null)
                     }else{
-                        await DB.UpdateQueue({userid: userid}, {$push: {queue: {title: m.title, url: m.video_url}}})
+                        const asd = await DB.UpdateQueue({userid: userid}, {$push: {queue: {title: m.title, url: m.video_url}}})
+                        if(asd){
+                            return socket.emit('Add_Sucess', {title: m.title, url: m.video_url})
+                        }else{
+                            return socket.emit('SomeThingWentWrong', null)
+                        }
                     }
     
     
@@ -636,11 +646,13 @@ io.on('connection',  async (socket) => {
         })
         socket.on('remove', async (data) => {
             const url = data.url
-            const num = data.num
+			console.log('TCL: url', url)
+            let num = data.num
+			console.log('TCL: num', num)
             if(url){
                 if (!ytdl.validateURL(url)) return socket.emit('Remove_UrlNotValid', null)
                 ytdl.getBasicInfo(url).then(async m => {
-                    const UserQueue = await DB.FindOneQueue({userid: member.id})
+                    const UserQueue = await DB.FindOneQueue({userid: member.user.id})
                     const Queue = UserQueue.queue
                     if(Queue.length < 0){
                         let asd = false
@@ -652,8 +664,8 @@ io.on('connection',  async (socket) => {
                         if(!asd){ 
                             return socket.emit('Remove_SongNotInQueue', null)
                         }else{
-                            await DB.UpdateQueue({userid: member.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
-                            UserQueue = await DB.FindOneQueue({userid: member.id})  
+                            await DB.UpdateQueue({userid: member.user.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
+                            UserQueue = await DB.FindOneQueue({userid: member.user.id})  
                             return socket.emit('Remove_Sucess', url)
                         }
         
@@ -664,34 +676,44 @@ io.on('connection',  async (socket) => {
                     
                 })
             }else if(num){
-                const UserQueue = await DB.FindOneQueue({userid: member.id})
+                num = parseInt(num)
+                const UserQueue = await DB.FindOneQueue({userid: member.user.id})
                 const Queue = UserQueue.queue
                 if((num > Queue.length) || (num < 0)) return socket.emit('Remove_NumberError', Queue.length)
-                if(!Queue[num].url) return socket.emit('Remove_SomethingWentWrong', null)
-
+                if(!Queue[num]) return socket.emit('SomethingWentWrong', null)
+                
                 ytdl.getBasicInfo(Queue[num].url).then(async m => {      
-                    await DB.UpdateQueue({userid: member.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
-                    return socket.emit('Remove_Sucess', m.title)
+                    await DB.UpdateQueue({userid: member.user.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
+                    return socket.emit('Remove_Sucess', {title: m.title, id: data.id})
                 })
             }else{
-                return socket.emit('Remove_SomethingWentWrong', null)
+                return socket.emit('SomethingWentWrong', null)
             }
         })
         socket.on('queuechange', async (data) => {
             if(!data) return socket.emit('OnChangeByClient_Error', null)
-            const asd = await DB.UpdateQueue(member.id, {queue: data})
+            artificallyQueueUpdate = true
+            data.map(m =>{
+                m.title.replace(' ' + ' ', '')
+            })
+            const asd = await DB.UpdateQueue({userid: member.user.id}, {queue: data})
             if(asd){
+                setTimeout(() => {
+                    artificallyQueueUpdate = false
+                }, 500);
                 return socket.emit('OnChangeByClient_Sucess', null)
             }else{
+                console.log('fasz2')                
                 return socket.emit('OnChangeByClient_Error', null)
             }
         })
         Queues.watch({
             fullDocument: 'updateLookup'
         }).on('change', change => {
-            console.log("FASZ")
             if (change.fullDocument.userid === userid) {
-                return socket.emit('OnChange_NewQueue', change.fullDocument.queue)
+                if(!artificallyQueueUpdate){
+                    return socket.emit('OnChange_NewQueue', change.fullDocument.queue)
+                }
             }
         })
 

@@ -10,8 +10,8 @@ import $ from 'jquery';
 const cookies = new Cookies();
 const farFuture = new Date(new Date().getTime() + (1000*60*60*24*365)); // ~10y *60*24*365*10
 
-if(window.location.origin === "http://wearegamers.hu"){
-    window.location.replace("http://www.wearegamers.hu");
+if(window.location.origin === 'http://wearegamers.hu'){
+    window.location.replace('http://www.wearegamers.hu');
 }
 
 
@@ -25,14 +25,14 @@ if(cookies.get('userinfos')){
         var userid = cookies.get('userinfos').userid
 
         const io = socketio.connect(`http://www.wearegamers.hu:8080?userid=${userid}`);
-        $.get("http://ipinfo.io", function(response) {
+        $.get('http://ipinfo.io', function(response) {
         var b =  response.ip;
         var c =  response.country;
             io.emit('memberip', {
                 ip: b,
                 loc: c
             })
-        }, "json");
+        }, 'json');
         io.on('chartdatas', data => {
             cookies.set('chartdata', {
                 day_0: {
@@ -87,7 +87,7 @@ if(cookies.get('userinfos')){
                 blueboxWidth: data.blueboxWidth
             })
         })
-        io.on("useronserver", data => {
+        io.on('useronserver', data => {
             if(data.onserver === false){
               io.emit('userleftfromserver', {
                 userID: userid
@@ -108,35 +108,35 @@ if(cookies.get('userinfos')){
                 channel: data.Channel
             })
         })
-        io.on("InventoryChanged", data => {
+        io.on('InventoryChanged', data => {
             cookies.set('inventory', {
                 gold: data.gold,
                 diamond: data.diamond,
                 dj: data.DJ,
                 channel: data.Channel
             }, {expires: farFuture})
-            document.getElementById('gold_db').innerText = data.gold + " db"
-            document.getElementById('diamond_db').innerText = data.diamond + " db"
-            document.getElementById('dj_db').innerText = data.DJ + " db"
-            document.getElementById('channel_db').innerText = data.Channel + " db"
+            document.getElementById('gold_db').innerText = data.gold + ' db'
+            document.getElementById('diamond_db').innerText = data.diamond + ' db'
+            document.getElementById('dj_db').innerText = data.DJ + ' db'
+            document.getElementById('channel_db').innerText = data.Channel + ' db'
         })
-        io.on("BalanceChanged", balance => {
+        io.on('BalanceChanged', balance => {
             cookies.set('balance', balance, {expires: farFuture})
-            document.getElementById('balance').innerText = "$" + balance
+            document.getElementById('balance').innerText = '$' + balance
         })
 
     }
 }else{
     const io = socketio.connect(`http://www.wearegamers.hu:8080`);
     console.log('fasz')
-    $.get("http://ipinfo.io", function(response) {
+    $.get('http://ipinfo.io', function(response) {
         var b =  response.ip;
         var c =  response.country;
             io.emit('userip', {
                 ip: b,
                 loc: c
             })
-        }, "json");
+        }, 'json');
 }
 
 
@@ -149,7 +149,7 @@ $(document).ready(function () {
     $('.menu').click(function (){
         $('nav').toggleClass('menu_active')
     })
-    if(cookies.get("userinfos")){
+    if(cookies.get('userinfos')){
         $('#nav_ul').width(610)
     }else{
         $('#nav_ul').width(733)
@@ -157,7 +157,7 @@ $(document).ready(function () {
 })
 
 $(window).resize(function (){
-    if(cookies.get("userinfos")){
+    if(cookies.get('userinfos')){
         if(($(window).width() < 1600) && ($(window).width() > 1000)){
             $('#nav_ul').width(550)
         }else{

@@ -47,9 +47,9 @@ module.exports = async function (bot, msg, commands, prefix){
                     avaiableBots.push(bots[0])
                 }else if(bot.guilds.array()[0].members.get(bots[0]).voiceChannel){
                     UserVoice.members.map(m => {
-                        if(m.id === bots[0]){
+                        if(m.user.id === bots[0]){
                             avaiableBots.push(bots[0])
-                        }else if(m.id === bots[1]){
+                        }else if(m.user.id === bots[1]){
                             if(avaiableBots.includes(bots[0])){
                                 avaiableBots.splice(avaiableBots.indexOf(bots[0]), 1)
                             }
@@ -60,9 +60,9 @@ module.exports = async function (bot, msg, commands, prefix){
                     avaiableBots.push(bots[1])
                 }else if(bot.guilds.array()[0].members.get(bots[1]).voiceChannel){
                     UserVoice.members.map(m => {
-                        if(m.id === bots[1]){
+                        if(m.user.id === bots[1]){
                             avaiableBots.push(bots[1])
-                        }else if(m.id === bots[0]){
+                        }else if(m.user.id === bots[0]){
                             if(avaiableBots.includes(bots[0])){
                                 avaiableBots.splice(avaiableBots.indexOf(bots[0]), 1)
                             }
@@ -212,9 +212,9 @@ module.exports = async function (bot, msg, commands, prefix){
                 if(!msg.member.voiceChannel) return ErrorMsg('Skip Parancs', 'Nem vagy benne egy szobában sem!', msg.author.id)
                 let botWhoIn = null
                 msg.member.voiceChannel.members.map(m => {
-                    if(m.id === bots[0]){
+                    if(m.user.id === bots[0]){
                         botWhoIn = 1
-                    }else if(m.id === bots[1]){
+                    }else if(m.user.id === bots[1]){
                         botWhoIn = 2
                     }
                 })
@@ -233,9 +233,9 @@ module.exports = async function (bot, msg, commands, prefix){
                 if(!msg.member.voiceChannel) return ErrorMsg('Back Parancs', 'Nem vagy benne egy szobában sem!', msg.author.id)
                 let botWhoIn = null
                 msg.member.voiceChannel.members.map(m => {
-                    if(m.id === bots[0]){
+                    if(m.user.id === bots[0]){
                         botWhoIn = 1
-                    }else if(m.id === bots[1]){
+                    }else if(m.user.id === bots[1]){
                         botWhoIn = 2
                     }
                 })
@@ -254,9 +254,9 @@ module.exports = async function (bot, msg, commands, prefix){
                 if(!msg.member.voiceChannel) return ErrorMsg('Pause Parancs', 'Nem vagy benne egy szobában sem!', msg.author.id)
                 let botWhoIn = null
                 msg.member.voiceChannel.members.map(m => {
-                    if(m.id === bots[0]){
+                    if(m.user.id === bots[0]){
                         botWhoIn = 1
-                    }else if(m.id === bots[1]){
+                    }else if(m.user.id === bots[1]){
                         botWhoIn = 2
                     }
                 })
@@ -275,9 +275,9 @@ module.exports = async function (bot, msg, commands, prefix){
                 if(!msg.member.voiceChannel) return ErrorMsg('Pause Parancs', 'Nem vagy benne egy szobában sem!', msg.author.id)
                 let botWhoIn = null
                 msg.member.voiceChannel.members.map(m => {
-                    if(m.id === bots[0]){
+                    if(m.user.id === bots[0]){
                         botWhoIn = 1
-                    }else if(m.id === bots[1]){
+                    }else if(m.user.id === bots[1]){
                         botWhoIn = 2
                     }
                 })
@@ -296,9 +296,9 @@ module.exports = async function (bot, msg, commands, prefix){
                 if(!msg.member.voiceChannel) return ErrorMsg('Shuffle Parancs', 'Nem vagy benne egy szobában sem!', msg.author.id)
                 let botWhoIn = null
                 msg.member.voiceChannel.members.map(m => {
-                    if(m.id === bots[0]){
+                    if(m.user.id === bots[0]){
                         botWhoIn = 1
-                    }else if(m.id === bots[1]){
+                    }else if(m.user.id === bots[1]){
                         botWhoIn = 2
                     }
                 })
@@ -317,9 +317,9 @@ module.exports = async function (bot, msg, commands, prefix){
                 if(!msg.member.voiceChannel) return ErrorMsg('Repeat Parancs', 'Nem vagy benne egy szobában sem!', msg.author.id)
                 let botWhoIn = null
                 msg.member.voiceChannel.members.map(m => {
-                    if(m.id === bots[0]){
+                    if(m.user.id === bots[0]){
                         botWhoIn = 1
-                    }else if(m.id === bots[1]){
+                    }else if(m.user.id === bots[1]){
                         botWhoIn = 2
                     }
                 })
@@ -338,9 +338,9 @@ module.exports = async function (bot, msg, commands, prefix){
                 if(!msg.member.voiceChannel) return ErrorMsg('NoRepeat Parancs', 'Nem vagy benne egy szobában sem!', msg.author.id)
                 let botWhoIn = null
                 msg.member.voiceChannel.members.map(m => {
-                    if(m.id === bots[0]){
+                    if(m.user.id === bots[0]){
                         botWhoIn = 1
-                    }else if(m.id === bots[1]){
+                    }else if(m.user.id === bots[1]){
                         botWhoIn = 2
                     }
                 })
