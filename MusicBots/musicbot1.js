@@ -21,7 +21,7 @@
     const fs = require(`fs`);
     const fs_extra = require(`fs-extra`);
     const path = require(`path`);
-    // const socketio = require(`socket.io-client`).connect(`http://178.48.146.196:8080`)
+    const ee = require('../Features/events')
   
 // Define Main Variables
     const bot = new Discord.Client()
@@ -40,8 +40,16 @@
     let CurrentUser = null
     let UserSpeaking = false
     let OnSongEnd = "norepeat"
-
-// Functions
+    
+    // Functions
+function sleep(milliseconds) {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds){
+            break;
+            }
+        }
+}
 function processRawToWav(filepath, outputpath, cb) {
     fs.closeSync(fs.openSync(outputpath, `w`));
     var command = ffmpeg(filepath)
@@ -199,6 +207,7 @@ async function Play(url, member){
             bot.guilds.array()[0].channels.get("549304802459385897").send(embed)
 
         })
+        sleep(100)
         dispatcher.on(`end`, async function(){
             console.log(`artificallyEnd: ` + artificallySongChange)
             if(OnSongEnd === "norepeat"){
@@ -215,6 +224,10 @@ async function Play(url, member){
                         nextSong = Queue[songIndex + 1]
                     }
                     Play(nextSong, member)
+                    ee.emit('songend', {
+                        userid: CurrentUser,
+                        song: nextSong
+                    })
                     ytdl.getBasicInfo(nextSong).then(m => {
                         const embed = new Discord.RichEmbed({
                             "title": m.title,
@@ -238,6 +251,10 @@ async function Play(url, member){
             }else if(OnSongEnd === "repeat"){
                 if(artificallySongChange == false){
                     Play(LastSong, member)
+                    ee.emit('songend', {
+                        userid: CurrentUser,
+                        song: nextSong
+                    })
                 }
             }else if(OnSongEnd === "shuffle"){
                 if(artificallySongChange == false){
@@ -249,6 +266,10 @@ async function Play(url, member){
                     let rand = Math.floor(Math.random() * (Queue.length)) 
                     nextSong = Queue[rand]
                     Play(nextSong, member)
+                    ee.emit('songend', {
+                        userid: CurrentUser,
+                        song: nextSong
+                    })
                     ytdl.getBasicInfo(nextSong).then(m => {
                         const embed = new Discord.RichEmbed({
                             "title": m.title,
@@ -477,6 +498,7 @@ module.exports = {
     },
     join: async function(member){
         JoinChannel(member, null)
+        sleep(1000)
     },
     leave: async function(){
         artificallySongChange = true
@@ -493,6 +515,7 @@ module.exports = {
         LastSong = null
         CurrentUser = null
         artificallySongChange = false
+        sleep(1000)
     },
     play: async function(args){
         if(typeof args === "string"){
@@ -519,6 +542,7 @@ module.exports = {
                     }
                 }
             })
+            sleep(400)
         }else{
             const url = args.url
             const member = args.member
@@ -541,6 +565,7 @@ module.exports = {
                     }
                 }
             })
+            sleep(1000)
         }
 
     },
@@ -552,12 +577,15 @@ module.exports = {
             }
         }
         artificallySongChange = false
+        sleep(1000)
     },
     skip: async function(member){
         SkipSong(member)
+        sleep(1000)
     },
     back: async function(member){
         BackSong(member)
+        sleep(1000)
     },
     pause: async function(){
         if(con){
@@ -565,6 +593,7 @@ module.exports = {
                 con.dispatcher.pause()
             }
         }
+        sleep(1000)
     },
     resume: async function(){
         if(con){
@@ -572,12 +601,15 @@ module.exports = {
                 con.dispatcher.resume()
             }
         }
+        sleep(1000)
     },
     shuffle: async function(){
         OnSongEnd = "shuffle"
+        sleep(1000)
     },
     repeat: async function(){
         OnSongEnd = "repeat"
+        sleep(1000)
     },
     norepeat: async function(){
         OnSongEnd = "norepeat"
@@ -610,5 +642,6 @@ module.exports = {
             }
         })
         msg.author.send(embed1)
+        sleep(3000)
     }
 }

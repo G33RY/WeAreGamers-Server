@@ -88,7 +88,7 @@ module.exports = function(app){
                         }, {expires: farFuture})
                         const UserQueue = await DB.FindOneQueue({userid: user.id})
                         const queue = UserQueue.queue
-                        await res.cookie('queue', queue)
+                        await res.cookie('queue', queue, {expires: farFuture})
                     }   
                 }
         }
@@ -136,4 +136,78 @@ module.exports = function(app){
         
         
     }));
+    app.use('/api/countdown', catchAsync(async (req, res) => {
+        const secondsAll = moment('2019-04-19 00:00').diff(moment(), 'seconds')
+        let daysRes = 0
+        let hoursRes = 0
+        let minutesRes = 0
+        let secondsRes = 0
+
+        if(secondsAll % 60 == 0){
+            let hours
+            let minutes = secondsAll / 60
+            secondsRes = 0
+            if(minutes % 60 == 0){
+                hours = minutes / 60
+                minutesRes = 0
+                if(hours % 24 == 0){
+                    hoursRes = 0
+                    daysRes = parseInt((hours / 24).toString())
+                }else{
+                    daysRes = parseInt((hours / 24).toString())
+                    hoursRes = parseInt((hours % 24).toString())
+                }
+            }else{
+                hours = minutes / 60
+                minutesRes = parseInt((minutes % 60).toString()) + 1
+                if(hours % 24 == 0){
+                    hoursRes = 0
+                    daysRes = parseInt((hours / 24).toString())
+                }else{
+                    daysRes = parseInt((hours / 24).toString())
+                    hoursRes = parseInt((hours % 24).toString())
+                }
+            }
+        }else{
+            let hours
+            let minutes = secondsAll / 60
+            secondsRes = parseInt((secondsAll % 60).toString())
+            if(minutes % 60 == 0){
+                hours = minutes / 60
+                minutesRes = 0
+                if(hours % 24 == 0){
+                    hoursRes = 0
+                    daysRes = parseInt((hours / 24).toString())
+                }else{
+                    daysRes = parseInt((hours / 24).toString())
+                    hoursRes = parseInt((hours % 24).toString())
+                }
+            }else{
+                hours = minutes / 60
+                minutesRes = parseInt((minutes % 60).toString()) + 1
+                if(hours % 24 == 0){
+                    hoursRes = 0
+                    daysRes = parseInt((hours / 24).toString())
+                }else{
+                    daysRes = parseInt((hours / 24).toString())
+                    hoursRes = parseInt((hours % 24).toString())
+                }
+            }
+        }
+        
+        
+        res.send({
+            "messages": [
+                {"text": `Már csak ${daysRes} nap, ${hoursRes} óra, ${minutesRes} perc, ${secondsRes} másodperc van hátra!`},
+              ]
+        })
+
+        // return res.send({
+        //     "days": daysRes,
+        //     "hours": hoursRes,
+        //     "minutes": minutesRes,
+        //     "seconds": secondsRes,
+        //     "text": `Már csak ${daysRes} nap, ${hoursRes} óra, ${minutesRes} perc, ${secondsRes} másodperc van hátra!`
+        // })
+    }))
 }

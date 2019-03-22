@@ -3,7 +3,7 @@ import socketio from 'socket.io-client';
 import './pages_css/musicbot.css';
 import Cookies from 'universal-cookie';
 import $ from 'jquery';
-import 'jquery-ui-bundle'
+import 'jquery-ui-bundle';
 
 
 const cookies = new Cookies();
@@ -24,7 +24,7 @@ class MusicBot extends Component {
     componentDidMount(){
         if(cookies.get('userinfos')){
             var userid = cookies.get('userinfos').userid
-            var io = socketio.connect(`http://178.48.146.196:8080?userid=${userid}`);
+            var io = socketio.connect(`http://wearegamers.hu:8080?userid=${userid}`);
 
             $( "#Queue").sortable({
                 update: function (event, ui) {
@@ -71,7 +71,8 @@ class MusicBot extends Component {
                 })
                 document.getElementById("SubmitBox").innerHTML = '<i class="rolling"></i>'
                 document.getElementById("SubmitBox").setAttribute('style', 'top: 16px')
-                e.preventDefault();
+                e.preventDefault()
+                $('#AddBox').val("")
             });
 
             //! Errors
@@ -127,8 +128,6 @@ class MusicBot extends Component {
             })
             //! Add Sucess
             io.on('Add_Sucess', async data =>{
-                document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
-                document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
                 let number = document.getElementById('Queue').childElementCount
                 document.getElementById('Queue').innerHTML += `
                 <tr key="${number}" class="Song" >
@@ -144,6 +143,24 @@ class MusicBot extends Component {
                     </td> 
                 </tr>
                 `
+                $('.SongNumber').each(function (i) {
+                    var numbering = i;
+                    document.getElementById(this.id).innerHTML = ('#' + numbering).toString()
+                    numbering++
+                });
+                let Queue = []
+                for(let i=0; i<$('.SongTitle a').length; i++){ 
+                    Queue.push({
+                        title: $('.SongTitle a')[i].innerHTML,
+                        url: $('.SongTitle a')[i].getAttribute('href')
+                    })
+                }
+                io.emit('queuechange', Queue)
+                cookies.set('queue', Queue)
+                document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
+                document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
+                window.location.reload()
+
             })
 
             //! Remove Errors
@@ -163,6 +180,20 @@ class MusicBot extends Component {
             })
             //! Remove Sucess
             io.on('Remove_Sucess', data =>{
+                $('.SongNumber').each(function (i) {
+                    var numbering = i;
+                    document.getElementById(this.id).innerHTML = ('#' + numbering).toString()
+                    numbering++
+                });
+                let Queue = []
+                for(let i=0; i<$('.SongTitle a').length; i++){ 
+                    Queue.push({
+                        title: $('.SongTitle a')[i].innerHTML,
+                        url: $('.SongTitle a')[i].getAttribute('href')
+                    })
+                }
+                io.emit('queuechange', Queue)
+                cookies.set('queue', Queue)
                 document.getElementById(data.id).remove()
                 let id = gen_rand_string(10)
                 $('#mb_errors').append(`<div class='sucess ${id}'><h1>${data.title} című zene sikeresen eltávolítva a Lejátszási Listádból!</h1></div>`).fadeIn('slow')
@@ -211,30 +242,45 @@ class MusicBot extends Component {
                 io.emit('play', {
                     num: num
                 })
+                const queue = cookies.get('queue')
+                document.getElementById('MusicTitle').innerHTML = `<h1>${queue[num].title}</h1>`
+                document.getElementById('MusicThumbnail').innerHTML = `<img alt="MusicThumbnail" src="${queue[num].thumbnail}" />`
+                cookies.set('LastSong', {
+                    url: queue[num].url,
+                    title: queue[num].title,
+                    thumbnail_url: queue[num].thumbnail
+                })
             })
 
             //! Remove
             $('.Remove').click(function (){
-                console.log('FASZ')
-                $('.SongNumber').each(function (i) {
-                    var numbering = i;
-                    document.getElementById(this.id).innerHTML = ('#' + numbering).toString()
-                    numbering++
-                });
-                let Queue = []
-                for(let i=0; i<$('.SongTitle a').length; i++){ 
-                    Queue.push({
-                        title: $('.SongTitle a')[i].innerHTML,
-                        url: $('.SongTitle a')[i].getAttribute('href')
-                    })
-                }
-                io.emit('queuechange', Queue)
-                cookies.set('queue', Queue)
                 const num = this.parentElement.parentElement.parentElement.firstChild.textContent.slice(1,2)
                 io.emit('remove', {
                     num: num,
                     id: this.parentElement.parentElement.parentElement.id || ''
                 })
+            })
+
+            //! On Song End
+            io.on('songend', function(data){
+                console.log(data)
+            })
+            
+
+            if ($('#MusicTitle h1')[0].scrollWidth >  $('#MusicTitle h1').innerWidth()) {
+                $('#MusicTitle h1').addClass('Scroller')
+            }
+            if($('#MusicTitle h1')[0].scrollWidth <=  $('#MusicTitle h1').innerWidth()){
+                $('#MusicTitle h1').removeClass('Scroller')
+            }    
+
+            $(window).resize(function (w, h) {
+                $('#MusicTitle h1').css({left: "0px"})
+                if ($('#MusicTitle h1')[0].scrollWidth >  $('#MusicTitle h1').innerWidth()) {
+                    $('#MusicTitle h1').addClass('Scroller')
+                }else{
+                    $('#MusicTitle h1').removeClass('Scroller')
+                }   
             })
             
 
@@ -297,9 +343,69 @@ class MusicBot extends Component {
         if(cookies.get('userinfos')){
             let queue = cookies.get('queue')
             let number = 0
+            let LastSong = {
+                url: null,
+                title: 'Válassz zenét!',
+                thumbnail_url: 'https://i.imgur.com/dVSCYU4.png'
+            }
+            if(cookies.get('LastSong')){
+                const LastSongCookie = cookies.get('LastSong')
+                LastSong = {
+                    url: LastSongCookie.url,
+                    title: LastSongCookie.title,
+                    thumbnail_url: LastSongCookie.thumbnail_url
+                }
+            }
             if(queue){
                 return(
                     <div>
+                        <div id="MusicPlayer">
+                            <div id="MusicProfile">
+                                <div id="MusicThumbnail">
+                                    <img alt="MusicThumbnail" src={LastSong.thumbnail_url} />
+                                </div>
+                                <div id="MusicTitle">
+                                    <h1>{LastSong.title}</h1>
+                                </div>
+                            </div>
+                            <div id="MusicPlayMain">
+                                <div id='MPFirstRow'>
+                                    <span className="visibleonmobile">
+                                        <i className="fas fa-step-backward"></i>
+                                    </span>
+                                    <span className="visibleonmobile">
+                                        <i className="fas fa-play"></i>
+                                    </span>
+                                    <span className="visibleonmobile">
+                                        <i className="fas fa-pause"></i>
+                                    </span>
+                                    <span className="visibleonmobile">
+                                        <i className="fas fa-step-forward"></i>
+                                    </span>
+                                    <span className="notonmobile">
+                                        <i className="fas fa-redo-alt"></i>
+                                    </span>
+                                    <span className="notonmobile">
+                                        <i className="fas fa-random"></i>
+                                    </span>
+                                    <span className="notonmobile">
+                                        <i className="fas fa-sync"></i>
+                                    </span>
+                                    <div id="VolumeChanger" className="notonmobile">
+                                        <div id="VolumeIcon">
+                                            <i className="fas fa-volume-up"></i>
+                                        </div>
+                                        <div id="VolumeSliderBox">
+                                            <input type="range" min="1" max="100" step="1" className="volume_slider" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="MPSecondRow">
+                                    <input type="range" min="1" max="100" step="1" className="music_slider" />
+                                </div>
+                                
+                            </div>
+                        </div>
                         <div id="musicbot_header">
                             <h1 id="musicbot_huge-heading">
                                 MUSIC BOTS
@@ -580,21 +686,3 @@ class MusicBot extends Component {
 }
           
 export default MusicBot
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          

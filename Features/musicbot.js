@@ -461,56 +461,52 @@ module.exports = async function (bot, msg, commands, prefix){
             }
             break
             case commands[32]:{
-                if (!args[0]) return ErrorMsg('Remove Parancs', 'Meg kell adnod egy létező YouTube linket!', msg.author.id)
-                if (!ytdl.validateURL(args[0])) return ErrorMsg('Remove Parancs', 'Meg kell adnod egy létező YouTube linket!', msg.author.id)
-                ytdl.getBasicInfo(args[0]).then(async m => {
-                    const UserQueue = await DB.FindOneQueue({userid: msg.author.id})
-                    const Queue = UserQueue.queue
-                    if(Queue.length < 0){
-                        let asd = false
-                        Queue.forEach(async el => {
-                            if(el.url === m.video_url){                   
-                                asd = true
-                            }
-                        });
-                        if(!asd){ 
-                            return ErrorMsg('Remove Parancs', 'A szám nincs benne a Lejátszási Listádban!', msg.author.id)
-                        }else{
-                            await DB.UpdateQueue({userid: msg.author.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
-                            UserQueue1 = await DB.FindOneQueue({userid: msg.author.id})  
-                            let queue_list = ''
-                            for (let i = 0; i < UserQueue1.queue.length; i++) {
-                                const e = UserQueue1.queue[i];
-                                let title = ''
-                                if(e.title.length){
-                                    const titleList = e.title.split(` `)
-                                    for (let i = 0; i < 5; i++) {
-                                        const el = titleList[i];
-                                        title += el
-                                    }
-                                    title += '...'
-                                }else{
-                                    title = e.title
-                                }
-                                queue_list += `${i}. ➤  __**[${title}](${e.url})**__\n`
-                            }
-                            const embed1 = new Discord.RichEmbed({
-                                'title': 'Törölve a Lejátszási Listádból:',
-                                'description': `Lejátszási Listád: \n${queue_list}`,
-                                'color': 3145472,
-                                'author': {
-                                    'name': msg.member.displayName,
-                                    'icon_url': msg.author.displayAvatarURL
-                                }
-                            })
-                            msg.author.send(embed1)
+                if (!args[0]) return ErrorMsg('Remove Parancs', 'Meg kell adnod egy számot!', msg.author.id)
+                const num = parseInt(args[0])
+                const UserQueue = await DB.FindOneQueue({userid: msg.author.id})
+                const Queue = UserQueue.queue
+                if((num+1 > Queue.length) || (num < 0)) return ErrorMsg('Remove Parancs', `A Lejátszási Listád üres vagy túl nagy számot adtál meg!`, msg.author.id)
+                if(!Queue[num]) return ErrorMsg('Remove Parancs', `Valami hiba történt! Próbáld újra!`, msg.author.id)
+                
+                ytdl.getBasicInfo(Queue[num].url).then(async m => {      
+                    let asd = false
+                    Queue.forEach(async el => {
+                        if(el.url === m.video_url){                   
+                            asd = true
                         }
-        
-        
+                    });
+                    if(!asd){ 
+                        return ErrorMsg('Remove Parancs', 'A szám nincs benne a Lejátszási Listádban!', msg.author.id)
                     }else{
-                        return ErrorMsg('Remove Parancs', 'A Lejátszási Listád üres!', msg.author.id)
+                        await DB.UpdateQueue({userid: msg.author.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
+                        UserQueue1 = await DB.FindOneQueue({userid: msg.author.id})  
+                        let queue_list = ''
+                        for (let i = 0; i < UserQueue1.queue.length; i++) {
+                            const e = UserQueue1.queue[i];
+                            let title = ''
+                            if(e.title.length){
+                                const titleList = e.title.split(` `)
+                                for (let i = 0; i < 5; i++) {
+                                    const el = titleList[i];
+                                    title += el
+                                }
+                                title += '...'
+                            }else{
+                                title = e.title
+                            }
+                            queue_list += `${i}. ➤  __**[${title}](${e.url})**__\n`
+                        }
+                        const embed1 = new Discord.RichEmbed({
+                            'title': 'Törölve a Lejátszási Listádból:',
+                            'description': `Lejátszási Listád: \n${queue_list}`,
+                            'color': 3145472,
+                            'author': {
+                                'name': msg.member.displayName,
+                                'icon_url': msg.author.displayAvatarURL
+                            }
+                        })
+                        msg.author.send(embed1)
                     }
-                    
                 })
             }
             break

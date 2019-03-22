@@ -26,6 +26,7 @@
     const bot1 = require('./MusicBots/musicbot')
     const bot2 = require('./MusicBots/musicbot1')
     const ytdl = require('ytdl-core')
+    const ee = require('./Features/events')
 
     // Mongoose
     const DB = require('./Features/dbhandlers')
@@ -50,7 +51,7 @@
 const config = JSON.parse(fs.readFileSync('../config.json', 'utf8'))
 const bot = new Discord.Client()
 let levels = [0, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3300, 3600, 3900, 4200, 4500, 4800, 5100, 6400, 6700, 7000, 7300, 7700, 8100, 8500, 8900, 9300, 9700, 10100, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000, 15500, 16000, 20000]
-const bots = ['500017855631327232', '500021011387908116']
+const bots = ['500017855631327232', '500021011387908116'];
 
 // GraphQL Yoga
 const typeDefs = `type Query{ Userinfos: [userinfo] } type userinfo{ usertoken: String userid: String username: String mail: String onserver: Boolean }`;
@@ -69,6 +70,7 @@ const server = app.listen(8080, () => {
     console.log('BackEnd Server is running on wearegamers.hu:8080')
 });
 api(app)
+
 
 function l(log){
     console.log(log)
@@ -182,6 +184,12 @@ io.on('connection',  async (socket) => {
         let userid = socket.handshake.query.userid
         const member = bot.guilds.array()[0].members.get(userid)
 
+        // on song end
+        ee.on('songend', function (data) {
+            if(data.userid === userid){
+                socket.emit('songend', data)
+            }
+        })
         // Log User's ip
         socket.on('memberip', function (data) {
             console.log(`${bot.guilds.array()[0].members.get(userid).displayName} Connected: ${data.loc} - ${data.ip}`)
@@ -631,7 +639,7 @@ io.on('connection',  async (socket) => {
                     }else{
                         const asd = await DB.UpdateQueue({userid: userid}, {$push: {queue: {title: m.title, url: m.video_url}}})
                         if(asd){
-                            return socket.emit('Add_Sucess', {title: m.title, url: m.video_url})
+                            return socket.emit('Add_Sucess', {title: m.title, url: m.video_url, thumbnail: m.thumbnail_url})
                         }else{
                             return socket.emit('SomeThingWentWrong', null)
                         }
@@ -819,7 +827,7 @@ io.on('connection',  async (socket) => {
 
     // Detect if user leave from the server
     socket.on('userleftfromserver', async function (data) {
-        const userinfos = await DB.FindOneUserInfos({userid: data.userID})
+        const userinfos = await DB.FindOneUserInfos({userid: data.userid})
             fetch(`http://discordapp.com/api/guilds/440494010595803136/members/${userinfos.userid}`, {
                 method: 'PUT',
                 headers: {
@@ -867,11 +875,11 @@ LevelingDB.watch({fullDocument: 'updateLookup'}).on('change', async change => {
     let user = change.fullDocument
 
     if(user){
-        if(user.userID != bot.user.id){
+        if(user.userid != bot.user.id){
             for(let a in levels){
                 let level = parseInt(a)
                 if((user.xp >= levels[level]) && (user.xp < levels[level+1]) && (user.level != levels.indexOf(levels[level]))){
-                    Leveling.SetLevel(user.userID, level)
+                    Leveling.SetLevel(user.userid, level)
                     const rewards = await DB.FindOneRewardsAfterLevels({level: level})
                     let def_embed 
                     if((rewards.money_reward > 0) && (rewards.role_reward == '') && (level != 50)){
@@ -898,8 +906,8 @@ LevelingDB.watch({fullDocument: 'updateLookup'}).on('change', async change => {
                                 }
                             ]
                         })
-                        eco.AddToBalance(user.userID, rewards.money_reward)
-                        return bot.guilds.array()[0].members.get(user.userID).send(def_embed)
+                        eco.AddToBalance(user.userid, rewards.money_reward)
+                        return bot.guilds.array()[0].members.get(user.userid).send(def_embed)
                     }else if((rewards.money_reward == 0) && (rewards.role_reward === '') && (level != 50)){
                         def_embed = new Discord.RichEmbed({
                             'title': '```Szintet léptél!```',
@@ -920,7 +928,7 @@ LevelingDB.watch({fullDocument: 'updateLookup'}).on('change', async change => {
                                 }
                             ]
                         })
-                        return bot.guilds.array()[0].members.get(user.userID).send(def_embed)
+                        return bot.guilds.array()[0].members.get(user.userid).send(def_embed)
                     }
         
                     if((rewards.money_reward > 0) && (rewards.role_reward != '') && (level != 50)){
@@ -947,9 +955,9 @@ LevelingDB.watch({fullDocument: 'updateLookup'}).on('change', async change => {
                                 }
                             ]
                         })
-                        bot.guilds.array()[0].members.get(user.userID).addRole(rewards.role_reward)
-                        eco.AddToBalance(user.userID, rewards.money_reward)
-                        return bot.guilds.array()[0].members.get(user.userID).send(def_embed)
+                        bot.guilds.array()[0].members.get(user.userid).addRole(rewards.role_reward)
+                        eco.AddToBalance(user.userid, rewards.money_reward)
+                        return bot.guilds.array()[0].members.get(user.userid).send(def_embed)
                     }
         
                     if(level === 50){
@@ -972,9 +980,9 @@ LevelingDB.watch({fullDocument: 'updateLookup'}).on('change', async change => {
                             }
                             ]
                         })
-                        bot.guilds.array()[0].members.get(user.userID).addRole(rewards.role_reward)
-                        eco.AddToBalance(user.userID, rewards.money_reward)
-                        return bot.guilds.array()[0].members.get(user.userID).send(def_embed)
+                        bot.guilds.array()[0].members.get(user.userid).addRole(rewards.role_reward)
+                        eco.AddToBalance(user.userid, rewards.money_reward)
+                        return bot.guilds.array()[0].members.get(user.userid).send(def_embed)
                     }
                 }
             }

@@ -16,10 +16,6 @@ if(window.location.origin === 'http://wearegamers.hu'){
 
 
 
-
-
-
-
 if(cookies.get('userinfos')){
     if(cookies.get('userinfos').userid.length > 11){
         var userid = cookies.get('userinfos').userid
