@@ -106,6 +106,12 @@ mongodb.set('useFindAndModify', false)
         channels: Array
     }); const PrivateChannels = mongoose.model("privatechannels", PrivateChannels_Schema)
 
+    // Volume
+    const Volume_Schema = new mongodb.Schema({
+        userid: String,
+        volume: Number
+    }); const Volume = mongoose.model("volumes", Volume_Schema)
+
 
 module.exports = {
     FindCounters: async function(ToFind){ 
@@ -225,6 +231,15 @@ module.exports = {
             return func;
         }
     },
+    FindVolumes: async function(ToFind){ 
+        if(typeof ToFind != "string"){
+            const func = await Volume.find(ToFind)
+            return func;
+        }else{
+            const func = await Volume.find()
+            return func;
+        }
+    },
 
 
     FindOneCounters: async function(ToFind){ 
@@ -277,6 +292,10 @@ module.exports = {
     },
     FindOnePrivateChannels: async function(ToFind){ 
         const func = await PrivateChannels.findOne(ToFind)
+        return func;
+    },
+    FindOneVolumes: async function(ToFind){ 
+        const func = await Volume.findOne(ToFind)
         return func;
     },
 
@@ -333,6 +352,10 @@ module.exports = {
         const func = await PrivateChannels.findOneAndUpdate(ToFind, data)
         return func;
     },
+    UpdateVolumes: async function(ToFind, data){ 
+        const func = await Volume.findOneAndUpdate(ToFind, data)
+        return func;
+    },
 
 
     CreateCounters: async function(data){
@@ -385,6 +408,10 @@ module.exports = {
     },
     CreatePrivateChannels: async function(data){ 
         const func = await PrivateChannels.create(data)
+        return func;
+    },
+    CreateVolumes: async function(data){ 
+        const func = await Volume.create(data)
         return func;
     },
 
@@ -441,6 +468,10 @@ module.exports = {
         const func = await PrivateChannels.countDocuments()
         return func;
     },
+    CountVolumes: async function(){ 
+        const func = await Volume.countDocuments()
+        return func;
+    },
 
 
     DeleteOneCounters: async function(toDelete){
@@ -493,6 +524,10 @@ module.exports = {
     },
     DeleteOnePrivateChannels: async function(toDelete){ 
         const func = await PrivateChannels.deleteOne({toDelete})
+        return func;
+    },
+    DeleteOneVolumes: async function(toDelete){ 
+        const func = await Volume.deleteOne({toDelete})
         return func;
     },
 }

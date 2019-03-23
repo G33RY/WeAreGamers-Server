@@ -41,15 +41,16 @@
     let UserSpeaking = false
     let OnSongEnd = "norepeat"
     
-    // Functions
+// Functions
 function sleep(milliseconds) {
-        var start = new Date().getTime();
-        for (var i = 0; i < 1e7; i++) {
-            if ((new Date().getTime() - start) > milliseconds){
-            break;
-            }
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds){
+        break;
         }
+    }
 }
+
 function processRawToWav(filepath, outputpath, cb) {
     fs.closeSync(fs.openSync(outputpath, `w`));
     var command = ffmpeg(filepath)
@@ -184,8 +185,10 @@ async function Play(url, member){
     }else{
         let CurrentMember = bot.guilds.array()[0].members.get(CurrentUser)
         LastSong = url
+        const VolumeDB = await DB.FindOneVolumes({userid: CurrentMember.user.id})
+        const Volume = (VolumeDB.volume || 50) / 1000
         dispatcher = Gconnection.playStream(ytdl(url, {filter: "audioonly"}))
-        dispatcher.setVolume(0.050)
+        dispatcher.setVolume(Volume)
         ytdl.getBasicInfo(LastSong).then(m => {
             const embed = new Discord.RichEmbed({
                 "title": m.title,
@@ -380,7 +383,7 @@ module.exports = {
     bot: async function(){
         bot.on(`ready`, () => {
             console.log(`Music Bot #${ThisBot} Ready`)
-            bot.user.setActivity("We Are Gamers", {type: "LISTENING"}) //Beállitja a Bot tevékenységét
+            bot.user.setActivity("www.wearegamers.hu", {type: "WATCHING"}) //Beállitja a Bot tevékenységét
         })
 
         bot.on(`voiceStateUpdate`, (oldMember, newMember) =>{
@@ -595,13 +598,45 @@ module.exports = {
         }
         sleep(1000)
     },
-    resume: async function(){
-        if(con){
-            if(con.dispatcher.paused){
-                con.dispatcher.resume()
+    resume: async function(url, member){
+        if(url){
+            if(member){
+                if(con){
+                    if(con.dispatcher){
+                        if(con.dispatcher.paused){
+                            con.dispatcher.resume()
+                        }
+                    }else{
+                        CurrentUser = member.id
+                        artificallySongChange = true
+                        Play(url, member)
+                        artificallySongChange = false
+                    }
+                }else{
+                    CurrentUser = member.id
+                    artificallySongChange = true
+                    Play(url, member)
+                    artificallySongChange = false
+                }
+            }else{
+                if(con){
+                    if(con.dispatcher){
+                        if(con.dispatcher.paused){
+                            con.dispatcher.resume()
+                        }
+                    }
+                }  
+            }
+        }else{
+            if(con){
+                if(con.dispatcher){
+                    if(con.dispatcher.paused){
+                        con.dispatcher.resume()
+                    }
+                }
             }
         }
-        sleep(1000)
+            sleep(1000)
     },
     shuffle: async function(){
         OnSongEnd = "shuffle"

@@ -15,12 +15,12 @@
     "name": "Arany",
     "type": "Items",
     "desc": "**Szeretnél lenni a szerver leggazdagabb embere? Akkor kereskedj arannyal! A változó ára miatt jót lehet vele nyerni vagy veszteni.\n\n**",
-    "price": 474
+    "price": 436
   },
   "Gyémánt": {
     "name": "Gyémánt",
     "type": "Items",
     "desc": "**Ha szeretsz kockáztatni akkor ez a te tárgyad! Sokkal nagyobbat változik az ára, ezáltal sokkal nagyobbat lehet vele nyerni viszont veszteni is.**",
-    "price": 1977
+    "price": 1930
   }
 }

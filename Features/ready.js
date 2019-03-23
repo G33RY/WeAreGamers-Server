@@ -28,6 +28,7 @@ module.exports = function (bot) {
             const QueueDB = await DB.FindOneQueue({userid: m.user.id})
             const PrivateDB = await DB.FindOnePrivateChannels({userid: m.user.id})
             const LevelingDB = await DB.FindOneLevelingDB({userid: m.user.id})
+            const VolumesDB = await DB.FindOneVolumes({userid: m.user.id})
 
             if(!CountersDB){
                 await DB.CreateCounters({userid: m.user.id, commands: 0, messages: 0})
@@ -53,9 +54,13 @@ module.exports = function (bot) {
                 Leveling.SetXp(m.user.id, 1)
             }
 
+            if(!VolumesDB){
+                await DB.CreateVolumes({ userid: m.id, volume: 50})
+            }
+
         })
 
-        bot.user.setActivity("We Are Gamers", {type: "WATCHING"}) //Beállitja a Bot tevékenységét
+        bot.user.setActivity("www.wearegamers.hu", {type: "WATCHING"}) //Beállitja a Bot tevékenységét
 
         const requidedcmds = new Discord.RichEmbed()
             .setTitle("__**REQUIDED COMMANDS TO START:**__")

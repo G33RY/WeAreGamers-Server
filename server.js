@@ -4,9 +4,11 @@
 // KNOW ERRORS: 
 //        -Belejentekzes utan 'Cannot set headers after they are sent to the client' neha adja ki es varni kell 1-2 percet es jo lesz
 
-// TO DO: 
-//        - 
-//        - 
+// TODO: 
+//TODO        - Nem mukodik a skip command
+//TODO        - Volume changer a client oldalon
+//TODO        - Mutassa hol tart a zene a client oldalon
+//TODO        - MAYBE: JOIN & LEAVE Button
 
 //! Import NPM Packages
     // WebSite
@@ -187,6 +189,13 @@ io.on('connection',  async (socket) => {
         // on song end
         ee.on('songend', function (data) {
             if(data.userid === userid){
+                ytdl.getBasicInfo(data.song).then(m =>{
+                    socket.emit('songend', {
+                        url: data.song,
+                        title: m.title,
+                        thumbnail_url: m.thumbnail_url
+                    })
+                })
                 socket.emit('songend', data)
             }
         })
@@ -248,66 +257,6 @@ io.on('connection',  async (socket) => {
         })
 
         // Handle Music Bots
-        {
-            // Emits:
-            //          - Join: 
-            //                  - UserNotInChannel
-            //                  - Join_BotsInUse
-            //                  - Join_Sucess => Bot Name
-            //          - Leave: 
-            //                  - BotsNotInChannels
-            //                  - Leave_BotsInUse
-            //                  - Leave_Sucess => Bot Name
-            //          - Play: 
-            //                  - SomethingWentWrong
-            //                  - UserNotInChannel
-            //                  - Play_UrlNotValid
-            //                  - Play_BotsInUse
-            //                  - Play_Sucess => Bot Name
-            //          - Stop: 
-            //                  - BotsNotInChannels
-            //                  - Stop_Sucess => Bot Name
-            //          - Skip: 
-            //                  - BotsNotInChannels
-            //                  - UserNotInChannel
-            //          - Back: 
-            //                  - BotsNotInChannels
-            //                  - UserNotInChannel
-            //          - Pause: 
-            //                  - UserNotInChannel
-            //                  - BotsNotInChannels
-            //          - Resume: 
-            //                  - UserNotInChannel
-            //                  - BotsNotInChannels
-            //          - Add: 
-            //                  - SomethingWentWrong
-            //                  - Add_UrlNotValid
-            //                  - Add_LimitReached
-            //                  - Add_SongAlreadyIn
-            //          - Remove: 
-            //                  - SomethingWentWrong
-            //                  - Remove_UrlNotValid
-            //                  - Remove_LimitReached
-            //                  - Remove_SongNotInQueue
-            //                  - Remove_PlaylistBlank => Queue Length
-            //                  - Remove_NumberError
-            //                  - Remove_Sucess => Removed Tittle
-            //          - Shuffle: 
-            //                  - UserNotInChannel
-            //                  - BotsNotInChannels
-            //          - Repeat: 
-            //                  - UserNotInChannel
-            //                  - BotsNotInChannels
-            //          - NoRepeat: 
-            //                  - NoUserNotInChannel
-            //                  - BotsNotInChannels
-            //          - OnChangeByClient: 
-            //                  - OnChangeByClient_Error
-            //                  - OnChangeByClient_Sucess
-            //          - OnChange: 
-            //                  - OnChange_NewQueue
-
-        }
         let artificallyQueueUpdate = false
         socket.on('join', async (data) => {
             console.log('join' + ' ' + bot.guilds.array()[0].members.get(userid).displayName)
@@ -402,13 +351,11 @@ io.on('connection',  async (socket) => {
                 num = parseInt(num)
                 if(isNaN(num)) return socket.emit('SomethingWentWrong', null)
                 if(!bot.guilds.array()[0].members.get(userid).voiceChannel) return socket.emit('UserNotInChannel', null)
-                console.log('faz')
                 const UserQueue = await DB.FindOneQueue({userid: userid})
                 const Queue = UserQueue.queue
                 const Url = Queue[num].url
                 if (!ytdl.validateURL(Url)) return socket.emit('Play_UrlNotValid', null)
     
-                console.log('fasz')    
                 const User = bot.guilds.array()[0].members.get(userid)
                 const Bot1Voice = bot.guilds.array()[0].members.get(bots[0]).voiceChannel
                 const Bot2Voice = bot.guilds.array()[0].members.get(bots[1]).voiceChannel
@@ -552,12 +499,50 @@ io.on('connection',  async (socket) => {
             })
             if(botWhoIn){
                 if(botWhoIn === 1){
-                    bot1.resume()
+                    bot1.resume(data, member)
                 }else if(botWhoIn === 2){
-                    bot2.resume()
+                    bot2.resume(data, member)
                 }
             }else{
-                return socket.emit('BotsNotInChannels', null)
+                const User = bot.guilds.array()[0].members.get(userid)
+                const Bot1Voice = bot.guilds.array()[0].members.get(bots[0]).voiceChannel
+                const Bot2Voice = bot.guilds.array()[0].members.get(bots[1]).voiceChannel
+                let avaiableBots = []
+    
+                if(Bot1Voice){
+                    if(Bot1Voice.members.get(User.id)){
+                        avaiableBots.push(bots[0])
+                    }
+                }else if(!Bot1Voice){
+                    avaiableBots.push(bots[0])
+                }
+                if(avaiableBots.length === 0){
+                    if(Bot2Voice){
+                        if(Bot2Voice.members.get(User.id)){
+                            avaiableBots.push(bots[1])
+                        }
+                    }else if(!Bot2Voice){
+                        avaiableBots.push(bots[1])
+                    }
+                }
+
+                if(avaiableBots.length === 0) return socket.emit('Play_BotsInUse', null)
+    
+                if(avaiableBots.length === 2){
+                    let rand = Math.round(Math.random())
+    
+                    if(rand === 0){
+                        bot1.resume(data, member)
+                    }else if(rand === 1){
+                        bot2.resume(data, member)
+                    }
+                }else if(avaiableBots.length === 1){
+                    if(avaiableBots[0] === bots[0]){
+                        bot1.resume(data, member)
+                    }else if(avaiableBots[0] === bots[1]){
+                        bot2.resume(data, member)
+                    }
+                }
             }
         })
         socket.on('shuffle', async (data) => {
@@ -625,6 +610,11 @@ io.on('connection',  async (socket) => {
             if (!url) return socket.emit('SomethingWentWrong', null)
             if (!ytdl.validateURL(url)) return socket.emit('Add_UrlNotValid', null)
             ytdl.getBasicInfo(url).then(async m => {
+                if(m.livestream || (m.length_seconds === 0)) return socket.emit('SomethingWentWrong', null)
+                fs.writeFile('../music1.json', JSON.stringify(m), function (err) {
+                    if (err) throw err;
+                    console.log('Saved!');
+                  });
                 const UserQueue = await DB.FindOneQueue({userid: userid})
                 const Queue = UserQueue.queue
                 if(Queue.length < 21){
@@ -654,9 +644,7 @@ io.on('connection',  async (socket) => {
         })
         socket.on('remove', async (data) => {
             const url = data.url
-			console.log('TCL: url', url)
             let num = data.num
-			console.log('TCL: num', num)
             if(url){
                 if (!ytdl.validateURL(url)) return socket.emit('Remove_UrlNotValid', null)
                 ytdl.getBasicInfo(url).then(async m => {
@@ -674,7 +662,7 @@ io.on('connection',  async (socket) => {
                         }else{
                             await DB.UpdateQueue({userid: member.user.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
                             UserQueue = await DB.FindOneQueue({userid: member.user.id})  
-                            return socket.emit('Remove_Sucess', url)
+                            return socket.emit('Remove_Sucess', {title: m.title, url: url, thumbnail: m.thumbnail_url})
                         }
         
         
@@ -692,10 +680,19 @@ io.on('connection',  async (socket) => {
                 
                 ytdl.getBasicInfo(Queue[num].url).then(async m => {      
                     await DB.UpdateQueue({userid: member.user.id}, {$pull: {queue: {title: m.title, url: m.video_url}}})
-                    return socket.emit('Remove_Sucess', {title: m.title, id: data.id})
+                    if(data.id){
+                        return socket.emit('Remove_Sucess', {title: m.title, url: m.video_url, id: data.id})
+                    }else{
+                        return socket.emit('Remove_Sucess', {title: m.title, url: m.video_url})
+                    }
                 })
             }else{
                 return socket.emit('SomethingWentWrong', null)
+            }
+        })
+        socket.on('volume', async (data) => {
+            if(data){
+                await DB.UpdateVolumes({userid: userid}, {userid: userid, volume: data})
             }
         })
         socket.on('queuechange', async (data) => {
@@ -1011,16 +1008,6 @@ setInterval(async () => {
 //! Messages
 bot.on('message', async msg => {
     msghandlers(msg, bot)
-
-    // msg.guild.members.map(async m => {
-        // await DB.CreateCounters({userid: m.user.id, commands: 0, messages: 0})
-        // await DB.CreateInventory({userid: m.user.id, DJ: 0, channel: 0, Arany: 0, Gyémánt: 0})
-        // await DB.CreateEconomyDB({userid: m.user.id, balance: 0, daily: 0})
-        // await DB.CreateQueue({ userid: m.id, queue: []})
-        // await DB.CreatePrivateChannels({ userid: m.id, channels: []})
-        // Leveling.SetXp(m.user.id, 1)
-    // })
-
 });
 
 

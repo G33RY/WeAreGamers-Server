@@ -7,6 +7,11 @@ import 'jquery-ui-bundle';
 
 
 const cookies = new Cookies();
+let LastSong = {
+    url: null,
+    title: 'Válassz zenét!',
+    thumbnail_url: 'https://i.imgur.com/dVSCYU4.png'
+}
 
 function gen_rand_string(string_length){
     let random_string = '';
@@ -23,8 +28,8 @@ function gen_rand_string(string_length){
 class MusicBot extends Component { 
     componentDidMount(){
         if(cookies.get('userinfos')){
-            var userid = cookies.get('userinfos').userid
-            var io = socketio.connect(`http://wearegamers.hu:8080?userid=${userid}`);
+            let userid = cookies.get('userinfos').userid
+            let io = socketio.connect(`http://wearegamers.hu:8080?userid=${userid}`);
 
             $( "#Queue").sortable({
                 update: function (event, ui) {
@@ -66,6 +71,7 @@ class MusicBot extends Component {
                 document.getElementById('Queue').innerHTML = QueueList
             })
             $("#AddSong").submit(function(e) {
+                $("#SubmitBox").attr('disabled', true)
                 io.emit('add', {
                     url: $('#AddBox').val()
                 })
@@ -82,6 +88,7 @@ class MusicBot extends Component {
                 setTimeout(() => {
                     $(`.${id}`).fadeOut('slow')
                 }, 5000);
+                $("#SubmitBox").attr('disabled', false)
             })
             io.on('UserNotInChannel', data =>{
                 let id = gen_rand_string(10)
@@ -103,10 +110,13 @@ class MusicBot extends Component {
                 document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
                 document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
                 let id = gen_rand_string(10)
-                $('#mb_errors').append(`<div class='error ${id}'><h1>Valós email címet kell megadnod!</h1></div>`).fadeIn('slow')
+                $('#mb_errors').append(`<div class='error ${id}'><h1>Valós linket kell megadnod!</h1></div>`).fadeIn('slow')
                 setTimeout(() => {
                     $(`.${id}`).fadeOut('slow')
                 }, 5000);
+                document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
+                document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
+                $("#SubmitBox").attr('disabled', false)
             })
             io.on('Add_LimitReached', data =>{
                 document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
@@ -116,6 +126,9 @@ class MusicBot extends Component {
                 setTimeout(() => {
                     $(`.${id}`).fadeOut('slow')
                 }, 5000);
+                document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
+                document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
+                $("#SubmitBox").attr('disabled', false)
             })
             io.on('Add_SongAlreadyIn', data =>{
                 document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
@@ -125,12 +138,15 @@ class MusicBot extends Component {
                 setTimeout(() => {
                     $(`.${id}`).fadeOut('slow')
                 }, 5000);
+                document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
+                document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
+                $("#SubmitBox").attr('disabled', false)
             })
             //! Add Sucess
             io.on('Add_Sucess', async data =>{
                 let number = document.getElementById('Queue').childElementCount
                 document.getElementById('Queue').innerHTML += `
-                <tr key="${number}" class="Song" >
+                <tr key="${number}" class="Song" id="${gen_rand_string(10)}">
                     <td class="SongNumber" id="${gen_rand_string(10)}" >#${number}</td>
                     <td class="SongTitle" id="${gen_rand_string(10)}">
                         <a href="${data.url}" target="_blank" rel="noopener noreferrer">${data.title}</a>
@@ -148,17 +164,17 @@ class MusicBot extends Component {
                     document.getElementById(this.id).innerHTML = ('#' + numbering).toString()
                     numbering++
                 });
-                let Queue = []
-                for(let i=0; i<$('.SongTitle a').length; i++){ 
-                    Queue.push({
-                        title: $('.SongTitle a')[i].innerHTML,
-                        url: $('.SongTitle a')[i].getAttribute('href')
-                    })
-                }
+                let Queue = cookies.get('queue')
+                Queue.push({
+                    title: data.title,
+                    url: data.url,
+                    thumbnail_url: data.thumbnail
+                })
                 io.emit('queuechange', Queue)
                 cookies.set('queue', Queue)
                 document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
                 document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
+                $("#SubmitBox").attr('disabled', false)
                 window.location.reload()
 
             })
@@ -180,21 +196,29 @@ class MusicBot extends Component {
             })
             //! Remove Sucess
             io.on('Remove_Sucess', data =>{
+                let Queue = cookies.get('queue')
+                if(Queue.length === 1){
+                    Queue.pop()
+                }else{
+                    let index = 0
+                    let i = 0
+                    Queue.map(m => {
+                        if(m.url === data.url) return index = i
+                        i++
+                    })
+                    Queue.splice(index, 1)
+                }
+                io.emit('queuechange', Queue)
+                cookies.set('queue', Queue)
+                if(data.id){
+                    document.getElementById(data.id).remove()
+                }
+
                 $('.SongNumber').each(function (i) {
                     var numbering = i;
                     document.getElementById(this.id).innerHTML = ('#' + numbering).toString()
                     numbering++
                 });
-                let Queue = []
-                for(let i=0; i<$('.SongTitle a').length; i++){ 
-                    Queue.push({
-                        title: $('.SongTitle a')[i].innerHTML,
-                        url: $('.SongTitle a')[i].getAttribute('href')
-                    })
-                }
-                io.emit('queuechange', Queue)
-                cookies.set('queue', Queue)
-                document.getElementById(data.id).remove()
                 let id = gen_rand_string(10)
                 $('#mb_errors').append(`<div class='sucess ${id}'><h1>${data.title} című zene sikeresen eltávolítva a Lejátszási Listádból!</h1></div>`).fadeIn('slow')
                 setTimeout(() => {
@@ -243,13 +267,15 @@ class MusicBot extends Component {
                     num: num
                 })
                 const queue = cookies.get('queue')
-                document.getElementById('MusicTitle').innerHTML = `<h1>${queue[num].title}</h1>`
-                document.getElementById('MusicThumbnail').innerHTML = `<img alt="MusicThumbnail" src="${queue[num].thumbnail}" />`
-                cookies.set('LastSong', {
+                document.getElementById('MusicTitle').innerHTML = `<h1 id="MusicTitleH1">${queue[num].title}</h1>`
+                document.getElementById('MusicThumbnail').innerHTML = `<div id="mask"><img alt="MusicThumbnail" src="${queue[num].thumbnail_url}" /></div>`
+                LastSong = {
                     url: queue[num].url,
                     title: queue[num].title,
-                    thumbnail_url: queue[num].thumbnail
-                })
+                    thumbnail_url: queue[num].thumbnail_url
+                }
+                cookies.set('LastSong', LastSong)
+
             })
 
             //! Remove
@@ -263,16 +289,25 @@ class MusicBot extends Component {
 
             //! On Song End
             io.on('songend', function(data){
-                console.log(data)
+                LastSong = {
+                    url: data.url,
+                    title: data.title,
+                    thumbnail_url: data.thumbnail_url
+                }
+                cookies.set('LastSong', LastSong)
+                document.getElementById('MusicTitle').innerHTML = `<h1 id="MusicTitleH1">${data.title}</h1>`
+                document.getElementById('MusicThumbnail').innerHTML = `<div id="mask"><img alt="MusicThumbnail" src="${data.thumbnail_url}" /></div>`
             })
             
 
-            if ($('#MusicTitle h1')[0].scrollWidth >  $('#MusicTitle h1').innerWidth()) {
-                $('#MusicTitle h1').addClass('Scroller')
+            if($('#MusicTitle h1')[0]){
+                if ($('#MusicTitle h1')[0].scrollWidth >  $('#MusicTitle h1').innerWidth()) {
+                    $('#MusicTitle h1').addClass('Scroller')
+                }else{
+                    $('#MusicTitle h1').removeClass('Scroller')
+                }    
             }
-            if($('#MusicTitle h1')[0].scrollWidth <=  $('#MusicTitle h1').innerWidth()){
-                $('#MusicTitle h1').removeClass('Scroller')
-            }    
+
 
             $(window).resize(function (w, h) {
                 $('#MusicTitle h1').css({left: "0px"})
@@ -283,48 +318,31 @@ class MusicBot extends Component {
                 }   
             })
             
-
-            // $("#Join").click(function () {
-            //     console.log('fasz')
-            //     io.emit('join', "")
-            // })
-            // $("#Leave").click(function () {
-            //     io.emit('leave', "")
-            // })
-            // $("#Play").click(function () {
-            //     io.emit('play', {
-            //         url: "https://www.youtube.com/watch?v=ytdONGz3r50"
-            //     })
-            // })
-            // $("#Stop").click(function () {
-            //     io.emit('stop', "")
-            // })
-            // $("#Skip").click(function () {
-            //     io.emit('skip', "")
-            // })
-            // $("#Back").click(function () {
-            //     io.emit('back', "")
-            // })
-            // $("#Pause").click(function () {
-            //     io.emit('pause', "")
-            // })
-            // $("#Resume").click(function () {
-            //     io.emit('resume', "")
-            // }
-            // $("#Remove").click(function () {
-            //     io.emit('remove', {
-            //         num: 1
-            //     })
-            // })
-            // $("#Shuffle").click(function () {
-            //     io.emit('shuffle', "")
-            // })
-            // $("#Repeat").click(function () {
-            //     io.emit('repeat', "")
-            // })
-            // $("#NoRepeat").click(function () {
-            //     io.emit('norepeat', "")
-            // })
+            $(".Stop").click(function () {
+                io.emit('stop', "")
+            })
+            $(".Skip").click(function () {
+                io.emit('skip', "")
+            })
+            $(".Back").click(function () {
+                io.emit('back', "")
+            })
+            $(".Pause").click(function () {
+                io.emit('pause', "")
+            })
+            $(".Resume").click(function () {
+                io.emit('resume', LastSong.url)
+                console.log(LastSong.url)
+            })
+            $(".Shuffle").click(function () {
+                io.emit('shuffle', "")
+            })
+            $(".Repeat").click(function () {
+                io.emit('repeat', "")
+            })
+            $(".NoRepeat").click(function () {
+                io.emit('norepeat', "")
+            })
             // $("#AddUser").click(function () {
             //     io.emit('adduser', {
             //         member: "553900948104151051"
@@ -343,11 +361,6 @@ class MusicBot extends Component {
         if(cookies.get('userinfos')){
             let queue = cookies.get('queue')
             let number = 0
-            let LastSong = {
-                url: null,
-                title: 'Válassz zenét!',
-                thumbnail_url: 'https://i.imgur.com/dVSCYU4.png'
-            }
             if(cookies.get('LastSong')){
                 const LastSongCookie = cookies.get('LastSong')
                 LastSong = {
@@ -362,34 +375,37 @@ class MusicBot extends Component {
                         <div id="MusicPlayer">
                             <div id="MusicProfile">
                                 <div id="MusicThumbnail">
-                                    <img alt="MusicThumbnail" src={LastSong.thumbnail_url} />
+                                    <div id="mask"><img alt="MusicThumbnail" src={LastSong.thumbnail_url} /></div>
                                 </div>
                                 <div id="MusicTitle">
-                                    <h1>{LastSong.title}</h1>
+                                    <h1 id="MusicTitleH1">{LastSong.title}</h1>
                                 </div>
                             </div>
                             <div id="MusicPlayMain">
                                 <div id='MPFirstRow'>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-step-backward"></i>
+                                        <i className="fas fa-step-backward Back"></i>
                                     </span>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-play"></i>
+                                        <i className="fas fa-play Resume"></i>
                                     </span>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-pause"></i>
+                                        <i className="fas fa-pause Pause"></i>
                                     </span>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-step-forward"></i>
+                                        <i className="fas fa-stop Stop"></i>
+                                    </span>
+                                    <span className="visibleonmobile">
+                                        <i className="fas fa-step-forward Skip"></i>
                                     </span>
                                     <span className="notonmobile">
-                                        <i className="fas fa-redo-alt"></i>
+                                        <i className="fas fa-redo-alt NoRepeat"></i>
                                     </span>
                                     <span className="notonmobile">
-                                        <i className="fas fa-random"></i>
+                                        <i className="fas fa-random Shuffle"></i>
                                     </span>
                                     <span className="notonmobile">
-                                        <i className="fas fa-sync"></i>
+                                        <i className="fas fa-sync Repeat"></i>
                                     </span>
                                     <div id="VolumeChanger" className="notonmobile">
                                         <div id="VolumeIcon">

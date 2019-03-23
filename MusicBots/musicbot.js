@@ -136,6 +136,7 @@ function JoinChannel(member, url) {
 }
 
 async function SkipSong(member){
+    artificallySongChange = true
     let Queue = []
     const UserQueue = await DB.FindOneQueue({userid: CurrentUser})
     const DefQueue = UserQueue.queue
@@ -147,12 +148,14 @@ async function SkipSong(member){
     }else{
         nextSong = Queue[songIndex + 1]
     }
-    artificallySongChange = true
+    console.log(nextSong)
     Play(nextSong, member)
+    sleep(100)
     artificallySongChange = false
 }
 
 async function BackSong(member){
+    artificallySongChange = true
     let Queue = []
     const UserQueue = await DB.FindOneQueue({userid: CurrentUser})
     const DefQueue = UserQueue.queue
@@ -164,7 +167,6 @@ async function BackSong(member){
     }else{
         nextSong = Queue[songIndex - 1]
     }
-    artificallySongChange = true
     Play(nextSong, member)
     artificallySongChange = false
 }
@@ -185,8 +187,10 @@ async function Play(url, member){
     }else{
         let CurrentMember = bot.guilds.array()[0].members.get(CurrentUser)
         LastSong = url
+        const VolumeDB = await DB.FindOneVolumes({userid: CurrentMember.user.id})
+        const Volume = (VolumeDB.volume || 50) / 1000
         dispatcher = Gconnection.playStream(ytdl(url, {filter: "audioonly"}))
-        dispatcher.setVolume(0.050)
+        dispatcher.setVolume(Volume)
         ytdl.getBasicInfo(LastSong).then(m => {
             const embed = new Discord.RichEmbed({
                 "title": m.title,
@@ -208,8 +212,7 @@ async function Play(url, member){
             bot.guilds.array()[0].channels.get("549304802459385897").send(embed)
 
         })
-        sleep(100)
-        dispatcher.on(`end`, async function(){
+        dispatcher.on('end', async function(){
             console.log(`artificallyEnd: ` + artificallySongChange)
             if(OnSongEnd === "norepeat"){
                 if(artificallySongChange == false){
@@ -381,7 +384,7 @@ module.exports = {
     bot: async function(){
         bot.on(`ready`, () => {
             console.log(`Music Bot #${ThisBot} Ready`)
-            bot.user.setActivity("We Are Gamers", {type: "LISTENING"}) //Beállitja a Bot tevékenységét
+            bot.user.setActivity("www.wearegamers.hu", {type: "WATCHING"}) //Beállitja a Bot tevékenységét
         })
 
         bot.on(`voiceStateUpdate`, (oldMember, newMember) =>{
@@ -596,13 +599,45 @@ module.exports = {
         }
         sleep(1000)
     },
-    resume: async function(){
-        if(con){
-            if(con.dispatcher.paused){
-                con.dispatcher.resume()
+    resume: async function(url, member){
+        if(url){
+            if(member){
+                if(con){
+                    if(con.dispatcher){
+                        if(con.dispatcher.paused){
+                            con.dispatcher.resume()
+                        }
+                    }else{
+                        CurrentUser = member.id
+                        artificallySongChange = true
+                        Play(url, member)
+                        artificallySongChange = false
+                    }
+                }else{
+                    CurrentUser = member.id
+                    artificallySongChange = true
+                    Play(url, member)
+                    artificallySongChange = false
+                }
+            }else{
+                if(con){
+                    if(con.dispatcher){
+                        if(con.dispatcher.paused){
+                            con.dispatcher.resume()
+                        }
+                    }
+                }  
+            }
+        }else{
+            if(con){
+                if(con.dispatcher){
+                    if(con.dispatcher.paused){
+                        con.dispatcher.resume()
+                    }
+                }
             }
         }
-        sleep(1000)
+            sleep(1000)
     },
     shuffle: async function(){
         OnSongEnd = "shuffle"
