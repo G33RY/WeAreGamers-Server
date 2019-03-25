@@ -15,7 +15,6 @@ if(window.location.origin === 'http://wearegamers.hu'){
 }
 
 
-
 if(cookies.get('userinfos')){
     if(cookies.get('userinfos').userid.length > 11){
         var userid = cookies.get('userinfos').userid
@@ -81,6 +80,8 @@ if(cookies.get('userinfos')){
                 xp: data.xp,
                 maxXp: data.maxXp,
                 blueboxWidth: data.blueboxWidth
+            }, {
+                "expires": farFuture
             })
         })
         io.on('useronserver', data => {
@@ -94,6 +95,8 @@ if(cookies.get('userinfos')){
             cookies.set('item_prices', {
                 gold: data.gold,
                 diamond: data.diamond
+            }, {
+                "expires": farFuture
             })
         })
         io.on('inv', data => {
@@ -102,6 +105,8 @@ if(cookies.get('userinfos')){
                 diamond: data.diamond,
                 dj: data.DJ,
                 channel: data.Channel
+            }, {
+                "expires": farFuture
             })
         })
         io.on('InventoryChanged', data => {
@@ -119,19 +124,23 @@ if(cookies.get('userinfos')){
         io.on('BalanceChanged', balance => {
             cookies.set('balance', balance, {expires: farFuture})
             document.getElementById('balance').innerText = '$' + balance
+        }, {
+            "expires": farFuture
         })
 
     }
 }else{
     const io = socketio.connect(`http://www.wearegamers.hu:8080`);
-    console.log('fasz')
     $.get('http://ipinfo.io', function(response) {
         var b =  response.ip;
         var c =  response.country;
-            io.emit('userip', {
-                ip: b,
-                loc: c
-            })
+        if(b === "94.21.92.194"){
+            window.location.replace('https://www.google.com')
+        }
+        io.emit('userip', {
+            ip: b,
+            loc: c
+        })
         }, 'json');
 }
 

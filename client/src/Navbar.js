@@ -17,7 +17,9 @@ class Navbar extends Component {
   render() {
     if(cookies.get('userinfos')){
       function redirect() {
-        window.location.reload()
+        setTimeout(() => {
+          window.location.reload()
+        }, 100);
       }
       return (
         <div className="navbar-container">

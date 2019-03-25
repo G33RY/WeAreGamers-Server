@@ -40,6 +40,15 @@ let OpusStringPath = ""
 let CurrentUser = null
 let UserSpeaking = false
 let OnSongEnd = "norepeat"
+let interval= null
+
+
+ee.on('volumechange', data => {
+    if(dispatcher){
+        const Volume = (data || 50) / 1000
+        dispatcher.setVolume(Volume)
+    }
+})
 
 // Functions
 function sleep(milliseconds) {
@@ -148,10 +157,10 @@ async function SkipSong(member){
     }else{
         nextSong = Queue[songIndex + 1]
     }
-    console.log(nextSong)
-    Play(nextSong, member)
-    sleep(100)
-    artificallySongChange = false
+    await Play(nextSong, member)
+    setTimeout(() => {
+        artificallySongChange = false
+    }, 300);
 }
 
 async function BackSong(member){
@@ -167,8 +176,10 @@ async function BackSong(member){
     }else{
         nextSong = Queue[songIndex - 1]
     }
-    Play(nextSong, member)
-    artificallySongChange = false
+    await Play(nextSong, member)
+    setTimeout(() => {
+        artificallySongChange = false
+    }, 300);
 }
 
 async function ChangeTrack(num, member){
@@ -254,6 +265,17 @@ async function Play(url, member){
                 }
             }else if(OnSongEnd === "repeat"){
                 if(artificallySongChange == false){
+                    let Queue = []
+                    const UserQueue = await DB.FindOneQueue({userid: CurrentUser})
+                    const DefQueue = UserQueue.queue
+                    await DefQueue.map(m => { Queue.push(m.url)})
+                    let nextSong = null
+                    let songIndex = Queue.indexOf(LastSong)
+                    if(!Queue[songIndex + 1]){
+                        nextSong = Queue[0]
+                    }else{
+                        nextSong = Queue[songIndex + 1]
+                    }
                     Play(LastSong, member)
                     ee.emit('songend', {
                         userid: CurrentUser,
@@ -529,8 +551,11 @@ module.exports = {
             const member = bot.guilds.array()[0].members.get(userid)
             CurrentUser = member.id
             artificallySongChange = true
-            Play(url, member)
-            artificallySongChange = false
+            console.log('fasza')
+            await Play(url, member)
+            setTimeout(() => {
+                artificallySongChange = false
+            }, 300);
             ytdl.getBasicInfo(url).then(async m => {
                 const UserQueue = await DB.FindOneQueue({userid: member.id})
                 const Queue = UserQueue.queue
@@ -546,13 +571,13 @@ module.exports = {
                     }
                 }
             })
-            sleep(400)
         }else{
+            artificallySongChange = true
             const url = args.url
             const member = args.member
             CurrentUser = member.id
-            artificallySongChange = true
-            Play(url, member)
+            await Play(url, member)
+            console.log('fasz')
             artificallySongChange = false
             ytdl.getBasicInfo(url).then(async m => {
                 const UserQueue = await DB.FindOneQueue({userid: member.id})
@@ -569,7 +594,6 @@ module.exports = {
                     }
                 }
             })
-            sleep(1000)
         }
 
     },
@@ -585,11 +609,9 @@ module.exports = {
     },
     skip: async function(member){
         SkipSong(member)
-        sleep(1000)
     },
     back: async function(member){
         BackSong(member)
-        sleep(1000)
     },
     pause: async function(){
         if(con){

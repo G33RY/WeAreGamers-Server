@@ -40,7 +40,15 @@
     let CurrentUser = null
     let UserSpeaking = false
     let OnSongEnd = "norepeat"
-    
+
+
+ee.on('volumechange', data => {
+    if(dispatcher){
+        const Volume = (data || 50) / 1000
+        dispatcher.setVolume(Volume)
+    }
+})
+
 // Functions
 function sleep(milliseconds) {
     var start = new Date().getTime();
@@ -136,6 +144,7 @@ function JoinChannel(member, url) {
 }
 
 async function SkipSong(member){
+    artificallySongChange = true
     let Queue = []
     const UserQueue = await DB.FindOneQueue({userid: CurrentUser})
     const DefQueue = UserQueue.queue
@@ -147,12 +156,14 @@ async function SkipSong(member){
     }else{
         nextSong = Queue[songIndex + 1]
     }
-    artificallySongChange = true
+    console.log(nextSong)
     Play(nextSong, member)
+    sleep(100)
     artificallySongChange = false
 }
 
 async function BackSong(member){
+    artificallySongChange = true
     let Queue = []
     const UserQueue = await DB.FindOneQueue({userid: CurrentUser})
     const DefQueue = UserQueue.queue
@@ -164,7 +175,6 @@ async function BackSong(member){
     }else{
         nextSong = Queue[songIndex - 1]
     }
-    artificallySongChange = true
     Play(nextSong, member)
     artificallySongChange = false
 }
@@ -190,6 +200,17 @@ async function Play(url, member){
         dispatcher = Gconnection.playStream(ytdl(url, {filter: "audioonly"}))
         dispatcher.setVolume(Volume)
         ytdl.getBasicInfo(LastSong).then(m => {
+            if(dispatcher){
+                interval = setInterval(() => {
+                    if(dispatcher != null){
+                        ee.emit('musictime', {
+                            userid: member.user.id,
+                            time: parseInt((dispatcher.time * 10000) / (m.length_seconds * 1000))
+                        })
+                    }
+
+                }, (m.length_seconds*1000) / 100);
+            }
             const embed = new Discord.RichEmbed({
                 "title": m.title,
                 "description": `Feltöltő: __**[${m.author.name}](${m.author.user_url})**__ \nIdőtartam: **${moment(m.length_seconds * 1000).subtract(1, "hours").format(`HH:mm:ss`)}**`,
@@ -210,8 +231,7 @@ async function Play(url, member){
             bot.guilds.array()[0].channels.get("549304802459385897").send(embed)
 
         })
-        sleep(100)
-        dispatcher.on(`end`, async function(){
+        dispatcher.on('end', async function(){
             console.log(`artificallyEnd: ` + artificallySongChange)
             if(OnSongEnd === "norepeat"){
                 if(artificallySongChange == false){

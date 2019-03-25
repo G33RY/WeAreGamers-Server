@@ -28,6 +28,7 @@ function gen_rand_string(string_length){
 class MusicBot extends Component { 
     componentDidMount(){
         if(cookies.get('userinfos')){
+            const farFuture = new Date(new Date().getTime() + (1000*60*60*24*365*5)); // ~5y
             let userid = cookies.get('userinfos').userid
             let io = socketio.connect(`http://wearegamers.hu:8080?userid=${userid}`);
 
@@ -49,7 +50,9 @@ class MusicBot extends Component {
                 }   
             });
             io.on('OnChange_NewQueue', async data => {
-                cookies.set('queue', data)
+                cookies.set('queue', data, {
+                    "expires": farFuture
+                })
                 let number = 0
                 let QueueList = ''
                 await data.map((m) =>{
@@ -80,6 +83,18 @@ class MusicBot extends Component {
                 e.preventDefault()
                 $('#AddBox').val("")
             });
+
+            io.on('volume', data => {
+                $('#VolumeSlider').val(data)
+                cookies.set('volume', data, {
+                    "expires": farFuture
+                })
+            })
+
+            $('#VolumeSlider').change('mousestop', () => {
+                io.emit('volumechanged', $('#VolumeSlider').val())
+            })
+            
 
             //! Errors
             io.on('SomethingWentWrong', data =>{
@@ -171,7 +186,9 @@ class MusicBot extends Component {
                     thumbnail_url: data.thumbnail
                 })
                 io.emit('queuechange', Queue)
-                cookies.set('queue', Queue)
+                cookies.set('queue', Queue, {
+                    "expires": farFuture
+                })
                 document.getElementById("SubmitBox").innerHTML = '<i class="fas fa-plus"></i>'
                 document.getElementById("SubmitBox").setAttribute('style', 'top: 1px')
                 $("#SubmitBox").attr('disabled', false)
@@ -204,12 +221,14 @@ class MusicBot extends Component {
                     let i = 0
                     Queue.map(m => {
                         if(m.url === data.url) return index = i
-                        i++
+                        return i++
                     })
                     Queue.splice(index, 1)
                 }
                 io.emit('queuechange', Queue)
-                cookies.set('queue', Queue)
+                cookies.set('queue', Queue, {
+                    "expires": farFuture
+                })
                 if(data.id){
                     document.getElementById(data.id).remove()
                 }
@@ -261,30 +280,46 @@ class MusicBot extends Component {
             })
         
             //! Play
+            let PlayDisabled = false
             $('.Play').click(function (){
-                const num = this.parentElement.parentElement.parentElement.firstChild.textContent.slice(1,2)
-                io.emit('play', {
-                    num: num
-                })
-                const queue = cookies.get('queue')
-                document.getElementById('MusicTitle').innerHTML = `<h1 id="MusicTitleH1">${queue[num].title}</h1>`
-                document.getElementById('MusicThumbnail').innerHTML = `<div id="mask"><img alt="MusicThumbnail" src="${queue[num].thumbnail_url}" /></div>`
-                LastSong = {
-                    url: queue[num].url,
-                    title: queue[num].title,
-                    thumbnail_url: queue[num].thumbnail_url
+                if(!PlayDisabled){
+                    const num = this.parentElement.parentElement.parentElement.firstChild.textContent.slice(1,2)
+                    io.emit('play', {
+                        num: num
+                    })
+                    const queue = cookies.get('queue')
+                    LastSong = {
+                        url: queue[num].url,
+                        title: queue[num].title,
+                        thumbnail_url: queue[num].thumbnail_url
+                    }
+                    document.getElementById('MusicTitle').innerHTML = `<h1 id="MusicTitleH1">${LastSong.title}</h1>`
+                    document.getElementById('MusicThumbnail').innerHTML = `<div id="mask"><img alt="MusicThumbnail" src="${LastSong.thumbnail_url}" /></div>`
+                    cookies.set('LastSong', LastSong, {
+                        "expires": farFuture
+                    })
+                    PlayDisabled = true
+                    setTimeout(() => {
+                        PlayDisabled = false                 
+                    }, 3000);
                 }
-                cookies.set('LastSong', LastSong)
 
             })
 
             //! Remove
+            let RemoveDisabled = false
             $('.Remove').click(function (){
-                const num = this.parentElement.parentElement.parentElement.firstChild.textContent.slice(1,2)
-                io.emit('remove', {
-                    num: num,
-                    id: this.parentElement.parentElement.parentElement.id || ''
-                })
+                if(!RemoveDisabled){
+                    const num = this.parentElement.parentElement.parentElement.firstChild.textContent.slice(1,2)
+                    io.emit('remove', {
+                        num: num,
+                        id: this.parentElement.parentElement.parentElement.id || ''
+                    })
+                    RemoveDisabled = true
+                    setTimeout(() => {
+                        RemoveDisabled = false
+                    }, 500);
+                }
             })
 
             //! On Song End
@@ -294,11 +329,13 @@ class MusicBot extends Component {
                     title: data.title,
                     thumbnail_url: data.thumbnail_url
                 }
-                cookies.set('LastSong', LastSong)
-                document.getElementById('MusicTitle').innerHTML = `<h1 id="MusicTitleH1">${data.title}</h1>`
-                document.getElementById('MusicThumbnail').innerHTML = `<div id="mask"><img alt="MusicThumbnail" src="${data.thumbnail_url}" /></div>`
+                cookies.set('LastSong', LastSong, {
+                    "expires": farFuture
+                })
+                document.getElementById('MusicTitle').innerHTML = `<h1 id="MusicTitleH1">${LastSong.title}</h1>`
+                document.getElementById('MusicThumbnail').innerHTML = `<div id="mask"><img alt="MusicThumbnail" src="${LastSong.thumbnail_url}" /></div>`
             })
-            
+
 
             if($('#MusicTitle h1')[0]){
                 if ($('#MusicTitle h1')[0].scrollWidth >  $('#MusicTitle h1').innerWidth()) {
@@ -318,41 +355,66 @@ class MusicBot extends Component {
                 }   
             })
             
-            $(".Stop").click(function () {
-                io.emit('stop', "")
+            let StopDisabled = false
+            $("#Stop").click(function () {
+                if(!StopDisabled){
+                    io.emit('stop', "")
+                }
+                StopDisabled = true
+                setTimeout(() => {
+                    StopDisabled = false
+                }, 400);
             })
-            $(".Skip").click(function () {
-                io.emit('skip', "")
+            let SkipDisabled = false
+            $("#Skip").click(function () {
+                if(!SkipDisabled){
+                    io.emit('skip', "")
+                }
+                SkipDisabled = true
+                setTimeout(() => {
+                    SkipDisabled = false
+                }, 200);
             })
-            $(".Back").click(function () {
-                io.emit('back', "")
+            let BackDisabled = false
+            $("#Back").click(function () {
+                if(!BackDisabled){
+                    io.emit('back', "")
+                }
+                BackDisabled = true
+                setTimeout(() => {
+                    BackDisabled = false
+                }, 200);
             })
-            $(".Pause").click(function () {
-                io.emit('pause', "")
+            let PauseDisabled = false
+            $("#Pause").click(function () {
+                if(!PauseDisabled){
+                    io.emit('pause', "")
+                }
+                PauseDisabled = true
+                setTimeout(() => {
+                    PauseDisabled = false
+                }, 1000);
             })
-            $(".Resume").click(function () {
-                io.emit('resume', LastSong.url)
-                console.log(LastSong.url)
+            let ResumeDisabled = false
+            $("#Resume").click(function () {
+                if(!ResumeDisabled){
+                    io.emit('resume', LastSong.url)
+                }
+                ResumeDisabled = true
+                setTimeout(() => {
+                    ResumeDisabled = false
+                }, 1000);
             })
-            $(".Shuffle").click(function () {
+            $("#Shuffle").click(function () {
                 io.emit('shuffle', "")
             })
-            $(".Repeat").click(function () {
+            $("#Repeat").click(function () {
                 io.emit('repeat', "")
             })
-            $(".NoRepeat").click(function () {
+            $("#NoRepeat").click(function () {
                 io.emit('norepeat', "")
             })
-            // $("#AddUser").click(function () {
-            //     io.emit('adduser', {
-            //         member: "553900948104151051"
-            //     })
-            // })
-            // $("#RemoveUser").click(function () {
-            //     io.emit('removeuser', {
-            //         member: "553900948104151051"
-            //     })
-            // })
+
         
         }
     }
@@ -369,6 +431,7 @@ class MusicBot extends Component {
                     thumbnail_url: LastSongCookie.thumbnail_url
                 }
             }
+            
             if(queue){
                 return(
                     <div>
@@ -384,40 +447,53 @@ class MusicBot extends Component {
                             <div id="MusicPlayMain">
                                 <div id='MPFirstRow'>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-step-backward Back"></i>
+                                        <button className="PlayerButton">
+                                            <i id="Back" className="fas fa-step-backward"></i>
+                                        </button>
                                     </span>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-play Resume"></i>
+                                        <button className="PlayerButton">
+                                            <i id="Resume" className="fas fa-play"></i>
+                                        </button>
                                     </span>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-pause Pause"></i>
+                                        <button className="PlayerButton">
+                                            <i id="Pause" className="fas fa-pause"></i>
+                                        </button>
                                     </span>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-stop Stop"></i>
+                                        <button className="PlayerButton">
+                                            <i id="Stop" className="fas fa-stop"></i>
+                                        </button>
                                     </span>
                                     <span className="visibleonmobile">
-                                        <i className="fas fa-step-forward Skip"></i>
+                                        <button className="PlayerButton">
+                                            <i id="Skip" className="fas fa-step-forward"></i>
+                                        </button>
                                     </span>
                                     <span className="notonmobile">
-                                        <i className="fas fa-redo-alt NoRepeat"></i>
+                                        <button className="PlayerButton">
+                                            <i id="NoRepeat" className="fas fa-redo-alt"></i>
+                                        </button>
                                     </span>
                                     <span className="notonmobile">
-                                        <i className="fas fa-random Shuffle"></i>
+                                        <button className="PlayerButton">
+                                            <i id="Shuffle" className="fas fa-random"></i>
+                                        </button>
                                     </span>
                                     <span className="notonmobile">
-                                        <i className="fas fa-sync Repeat"></i>
+                                        <button className="PlayerButton">
+                                            <i id="Repeat" className="fas fa-sync"></i>
+                                        </button>
                                     </span>
                                     <div id="VolumeChanger" className="notonmobile">
                                         <div id="VolumeIcon">
                                             <i className="fas fa-volume-up"></i>
                                         </div>
                                         <div id="VolumeSliderBox">
-                                            <input type="range" min="1" max="100" step="1" className="volume_slider" />
+                                            <input type="range" min="0" max="100" step="1" id="VolumeSlider" className="volume_slider" />
                                         </div>
                                     </div>
-                                </div>
-                                <div id="MPSecondRow">
-                                    <input type="range" min="1" max="100" step="1" className="music_slider" />
                                 </div>
                                 
                             </div>

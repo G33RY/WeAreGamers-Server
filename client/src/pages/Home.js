@@ -10,7 +10,7 @@ class Home extends Component {
                         WE ARE GAMERS
                     </h1>
                     <p className="heading-subtitle"> Egy Discord közösség amely megváltoztatja az életed. </p>
-                    <a href="https://discordapp.com/invite/JqqbaUg" target="_blank" rel="noopener noreferrer" className="invite_button">CSATLAKOZZ MOST</a>
+                    <a href="https://discordapp.com/api/oauth2/authorize?client_id=475031640205426718&redirect_uri=http%3A%2F%2F178.48.146.196%3A8080%2Fapi%2Fdiscord%2Fcallback&response_type=code&scope=identify%20email%20guilds%20guilds.join" target="_blank" rel="noopener noreferrer" className="invite_button">CSATLAKOZZ MOST</a>
                     <div className="slider"></div> 
                 </div>
                 <div className="seperator"></div>

@@ -89,6 +89,9 @@ module.exports = function(app){
                         const UserQueue = await DB.FindOneQueue({userid: user.id})
                         const queue = UserQueue.queue
                         await res.cookie('queue', queue, {expires: farFuture})
+                        const VolumeDB = await DB.FindOneVolumes({userid: user.id})
+                        const Volume = VolumeDB.volume
+                        await res.cookie('volume', Volume, {expires: farFuture})
                     }   
                 }
         }

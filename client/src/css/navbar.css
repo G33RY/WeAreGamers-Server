@@ -226,6 +226,10 @@ nav{
 }
 
 @media (max-width: 1000px){
+        
+    main{
+        padding: 0px 0px 0px 0px;
+    }
     #user #logout_icon{
         font-size: 23px;
     }

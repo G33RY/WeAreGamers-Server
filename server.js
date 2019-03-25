@@ -4,9 +4,8 @@
 // KNOW ERRORS: 
 //        -Belejentekzes utan 'Cannot set headers after they are sent to the client' neha adja ki es varni kell 1-2 percet es jo lesz
 
-// TODO: 
+//TODO: 
 //TODO        - Nem mukodik a skip command
-//TODO        - Volume changer a client oldalon
 //TODO        - Mutassa hol tart a zene a client oldalon
 //TODO        - MAYBE: JOIN & LEAVE Button
 
@@ -77,6 +76,16 @@ api(app)
 function l(log){
     console.log(log)
 }
+
+function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+        if ((new Date().getTime() - start) > milliseconds){
+        break;
+        }
+    }
+}
+
 
 // WebSocket Handlers
 const io = socketio(server)
@@ -204,6 +213,10 @@ io.on('connection',  async (socket) => {
             console.log(`${bot.guilds.array()[0].members.get(userid).displayName} Connected: ${data.loc} - ${data.ip}`)
         })
 
+        // Send Volumes
+        const VolumeDB = await DB.FindOneVolumes({userid: userid})
+        socket.emit('volume', VolumeDB.volume)
+
         // Send Items Price
         items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
         socket.emit('prices', {
@@ -255,6 +268,7 @@ io.on('connection',  async (socket) => {
                 })
             }   
         })
+
 
         // Handle Music Bots
         let artificallyQueueUpdate = false
@@ -428,7 +442,6 @@ io.on('connection',  async (socket) => {
         })
         socket.on('skip', async (data) => {
             if(!member.voiceChannel) return socket.emit('UserNotInChannel', null)
-            console.log('fasz')
             let botWhoIn = null
             member.voiceChannel.members.map(m => {
                 if(m.id === bots[0]){
@@ -611,10 +624,6 @@ io.on('connection',  async (socket) => {
             if (!ytdl.validateURL(url)) return socket.emit('Add_UrlNotValid', null)
             ytdl.getBasicInfo(url).then(async m => {
                 if(m.livestream || (m.length_seconds === 0)) return socket.emit('SomethingWentWrong', null)
-                fs.writeFile('../music1.json', JSON.stringify(m), function (err) {
-                    if (err) throw err;
-                    console.log('Saved!');
-                  });
                 const UserQueue = await DB.FindOneQueue({userid: userid})
                 const Queue = UserQueue.queue
                 if(Queue.length < 21){
@@ -690,9 +699,10 @@ io.on('connection',  async (socket) => {
                 return socket.emit('SomethingWentWrong', null)
             }
         })
-        socket.on('volume', async (data) => {
+        socket.on('volumechanged', async (data) => {
             if(data){
                 await DB.UpdateVolumes({userid: userid}, {userid: userid, volume: data})
+                ee.emit('volumechange', data)
             }
         })
         socket.on('queuechange', async (data) => {
