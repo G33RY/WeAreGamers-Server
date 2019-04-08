@@ -5,9 +5,7 @@
 //        -Belejentekzes utan 'Cannot set headers after they are sent to the client' neha adja ki es varni kell 1-2 percet es jo lesz
 
 //TODO: 
-//TODO        - Nem mukodik a skip command
-//TODO        - Mutassa hol tart a zene a client oldalon
-//TODO        - MAYBE: JOIN & LEAVE Button
+//TODO        - 
 
 //! Import NPM Packages
     // WebSite
