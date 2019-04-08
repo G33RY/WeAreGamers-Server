@@ -10,9 +10,9 @@ const DB = require('./dbhandlers')
 const MusicBot = require('./musicbot')
 
 // Import JSON files
-let items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
-let help = JSON.parse(fs.readFileSync('../Features/helpcmd.json', 'utf8'))
-const config = JSON.parse(fs.readFileSync('../config.json', 'utf8'))
+let items = JSON.parse(fs.readFileSync('DataBases/items.json', 'utf8'))
+let help = JSON.parse(fs.readFileSync('Features/helpcmd.json', 'utf8'))
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
 
 // Define Main Variables
 const modRole = 'Master Admin'
@@ -61,7 +61,7 @@ module.exports = async function(msg, bot) {
 
     if((msg.channel.type != 'dm') && (!msg.author.bot)){
         if((msg.guild.id === '440494010595803136')){
-            Leveling.AddXp(msg.author.id, 3)
+            Leveling.AddXp(msg.author.id, 2)
 
                     
             for(let i=16; i<commands.length; i++){
@@ -78,7 +78,7 @@ module.exports = async function(msg, bot) {
 
                 const usercounters = await DB.FindOneCounters({userid: msg.author.id})
                 await DB.UpdateCounters({userid: msg.author.id}, {messages: usercounters.messages + 1})
-                const usergcounters = await DB.FindOneGlobalCounters()
+                const usergcounters = await DB.FindOneGlobalCounters({id: 1})
                 await DB.UpdateGlobalCounters({id: 1}, {messages: usergcounters.messages + 1})
                 await DB.CreateMessageCounters({userid: msg.author.id, score: 1})
     
@@ -91,7 +91,7 @@ module.exports = async function(msg, bot) {
                     const usercounters = await DB.FindOneCounters({userid: msg.author.id})
                     await DB.UpdateCounters({userid: msg.author.id}, {commands: usercounters.commands + 1})
     
-                    const usergcounters = await DB.FindOneGlobalCounters()
+                    const usergcounters = await DB.FindOneGlobalCounters({id: 1})
                     await DB.UpdateGlobalCounters({id: 1}, {commands: usergcounters.commands + 1})
                     await DB.CreateCommandCounters({userid: msg.author.id, score: 1})
 
@@ -136,7 +136,7 @@ module.exports = async function(msg, bot) {
                     // Variables
                     let names = []
 
-                    items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
+                    items = JSON.parse(fs.readFileSync('DataBases/items.json', 'utf8'))
 
                     if (!args.join(' ')) {
                         for (var i in items) {
@@ -175,26 +175,26 @@ module.exports = async function(msg, bot) {
                     if (itemName === '') {
                         return ErrorMsg('Store Parancs', `A(z) ${args.join(' ').trim()} tárgy nem található.`, msg.author.id)
                     }
-                    eco.FetchBalance(msg.author.id).then(async (i) => {
+                    let UserEco = await DB.FindOneEconomyDB({userid: msg.author.id})
                             const member = await DB.FindOneInventory({userid: msg.author.id})
                             if((itemName == 'DJ') && (member.DJ == 0)){
-                                if (i.balance < itemPrice){
+                                if (UserEco.balance < itemPrice){
                                     ErrorMsg('Store Parancs', 'Nincs elég pénzed!', msg.member.user.id)
                                     
-                                }else if(i.balance >= itemPrice){
+                                }else if(UserEco.balance >= itemPrice){
                                     await DB.UpdateInventory({userid: msg.author.id}, {DJ: 1})
                                     msg.member.addRole('DJ')
                                     msg.author.send('Megvetted a DJ tárgyat.')
-                                    eco.AddToBalance(i.userid, itemPrice - (itemPrice * 2))
+                                    eco.AddToBalance(UserEco.userid, itemPrice - (itemPrice * 2))
             
                                 }
                             }else if((itemName == 'DJ') && (member.DJ == 1)){
                                 ErrorMsg('Store Parancs', 'Neked már meg van ez a tárgy!', msg.author.id)
                                 
                             }else if(itemName != 'DJ'){
-                                if (i.balance < itemPrice){
+                                if (UserEco.balance < itemPrice){
                                     ErrorMsg('Store Parancs', 'Nincs elég pénzed!', msg.member.user.id)
-                                }else if((i.balance > itemPrice) || (i.balance = itemPrice)){
+                                }else if((UserEco.balance > itemPrice) || (UserEco.balance = itemPrice)){
                                     if(itemName == 'Arany'){
                                         await DB.UpdateInventory({userid: msg.author.id}, {Arany: member.Arany + 1})
                                         msg.author.send(`Megvetted az Arany tárgyat.`)
@@ -203,23 +203,22 @@ module.exports = async function(msg, bot) {
                                         await DB.UpdateInventory({userid: msg.author.id}, {Gyémánt: member.Gyémánt + 1})
                                         msg.author.send(`Megvetted a Gyémánt tárgyat.`)
                                     }
-                                    eco.AddToBalance(i.userid, itemPrice - (itemPrice * 2))
+                                    eco.AddToBalance(UserEco.userid, (itemPrice - (itemPrice * 2)))
 
                                 }
                             }
-                    })
                 }
                 
                 // Bank
                 if (msg.content.startsWith(prefix + commands[5])) { 
-                    eco.FetchBalance(msg.author.id).then((i) => { 
+                    let UserEco = await DB.FindOneEconomyDB({userid: msg.author.id})
                         var embed = new Discord.RichEmbed()
                             .setDescription(`**${msg .guild.name} Bank**`)
                             .setColor(0xD4AF37)
                             .addField('Számla Tulajdonos: ', msg.member.displayName, true) 
-                            .addField('Számla Egyenleg: ', i.balance, true)
+                            .addField('Számla Egyenleg: ', UserEco.balance, true)
                         msg.channel.send(embed)
-                    })
+                    
                 }
                 
                 // Leaderboard
@@ -241,6 +240,7 @@ module.exports = async function(msg, bot) {
                 // Serverinfo
                 if(msg.content.startsWith(prefix + commands[7])){
                     const m = await DB.FindOneGlobalCounters({id: 1})
+                    console.log(m)
                     //? Variables
                     var createdAt = msg.guild.createdAt.toString().split(' ')
                     var FinalCreatedAt = `${createdAt[1]} ${createdAt[2]} ${createdAt[3]}, ${createdAt[4].substring(0, createdAt[4].length-3)}`
@@ -252,7 +252,7 @@ module.exports = async function(msg, bot) {
                         .addField('Szerver tulaj:', msg.guild.owner.displayName, true)
                         .addField('Felhasználók:', msg.guild.memberCount, true)
                         .addField('Rangok:', msg.guild.roles.map(m => m.name).slice(1), true)
-                        .addField('Adminok:', 'GERY,' + msg.guild.roles.find(x => x.name === 'Admin').members.map(m => '\n' + m.displayName), true)
+                        .addField('Adminok:', `${msg.guild.members.get("352768085834334208").displayName},` + msg.guild.roles.find(x => x.name === 'Admin').members.map(m => '\n' + m.displayName), true)
                         .addField('Elküldött üzenetek:', m.messages, true)
                         .addField('Elküldött parancsok:', m.commands, true)
                     msg.channel.send(embed)
@@ -332,7 +332,7 @@ module.exports = async function(msg, bot) {
                 // Inventory
                 if (msg.content.startsWith(prefix + commands[12])) { 
                             
-                    items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
+                    items = JSON.parse(fs.readFileSync('DataBases/items.json', 'utf8'))
                     const member = await DB.FindOneInventory({userid: msg.author.id})
                     var embed = new Discord.RichEmbed()
                         .setTitle('**Raktárad:**')
@@ -348,7 +348,7 @@ module.exports = async function(msg, bot) {
 
                 // Sale
                 if (msg.content.startsWith(prefix + commands[13])) { 
-                    items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
+                    items = JSON.parse(fs.readFileSync('DataBases/items.json', 'utf8'))
 
                     var allitem = []
                     for(var i in items){
@@ -486,10 +486,10 @@ module.exports = async function(msg, bot) {
                                     bg.print(name_font, 700, 140, XP) //XP
                                     
                                     // Save file
-                                    bg.write('../rank.png')
+                                    bg.write('rank.png')
             
                                     // Send file
-                                    msg.channel.sendFile('../rank.png')
+                                    msg.channel.sendFile('rank.png')
 
                                 })
 
@@ -584,7 +584,7 @@ module.exports = async function(msg, bot) {
 
     // Help
     if((msg.content.startsWith(prefix + commands[0])) && (msg.embeds.length == 0)) { 
-        help = JSON.parse(fs.readFileSync('../Features/helpcmd.json', 'utf8'))
+        help = JSON.parse(fs.readFileSync('Features/helpcmd.json', 'utf8'))
         var embed = new Discord.RichEmbed()
             .setAuthor(help.author_name, help.author_icon, help.author_url) 
             .setColor(0xff0000)
@@ -600,7 +600,7 @@ module.exports = async function(msg, bot) {
 
     // Music Help
     if((msg.content.startsWith(prefix + commands[1])) && (msg.embeds.length == 0)) { 
-        help = JSON.parse(fs.readFileSync('../Features/helpcmd.json', 'utf8'))
+        help = JSON.parse(fs.readFileSync('Features/helpcmd.json', 'utf8'))
         var embed = new Discord.RichEmbed()
             .setAuthor(help.author_name, help.author_icon, help.author_url) 
             .setColor(0xff0000)

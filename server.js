@@ -49,7 +49,7 @@
 
 
 // Define Main Variables
-const config = JSON.parse(fs.readFileSync('../config.json', 'utf8'))
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'))
 const bot = new Discord.Client()
 let levels = [0, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3300, 3600, 3900, 4200, 4500, 4800, 5100, 6400, 6700, 7000, 7300, 7700, 8100, 8500, 8900, 9300, 9700, 10100, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000, 15500, 16000, 20000]
 const bots = ['500017855631327232', '500021011387908116'];
@@ -90,7 +90,7 @@ function sleep(milliseconds) {
 // WebSocket Handlers
 const io = socketio(server)
 io.on('connection',  async (socket) => {
-    let items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
+    let items = JSON.parse(fs.readFileSync('DataBases/items.json', 'utf8'))
 
     // Log ip
     socket.on('userip', function (data) {
@@ -218,7 +218,7 @@ io.on('connection',  async (socket) => {
         socket.emit('volume', VolumeDB.volume)
 
         // Send Items Price
-        items = JSON.parse(fs.readFileSync('../DataBases/items.json', 'utf8'))
+        items = JSON.parse(fs.readFileSync('DataBases/items.json', 'utf8'))
         socket.emit('prices', {
             gold: items.Arany.price,
             diamond: items.Gyémánt.price

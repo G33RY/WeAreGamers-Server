@@ -5,7 +5,7 @@ const { catchAsync } = require('../utils');
 const fs = require('fs');
 const moment = require('moment');
 
-const config = JSON.parse(fs.readFileSync("../config.json", "utf8"))
+const config = JSON.parse(fs.readFileSync("config.json", "utf8"))
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;

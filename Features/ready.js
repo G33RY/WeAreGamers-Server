@@ -2,11 +2,11 @@ const moment = require('moment');
 const Discord = require('discord.js');
 const Leveling = require('discord-leveling');
 const editJsonFile = require("edit-json-file");
-const bot1 = require('../MusicBots/musicbot')
-const bot2 = require('../MusicBots/musicbot1')
+const bot1 = require('MusicBots/musicbot')
+const bot2 = require('MusicBots/musicbot1')
 const DB = require('./dbhandlers')
 
-const edititems = editJsonFile(`../DataBases/items.json`, {
+const edititems = editJsonFile(`DataBases/items.json`, {
     autosave: true
 })
 

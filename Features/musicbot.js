@@ -1,5 +1,5 @@
-const bot1 = require('../MusicBots/musicbot')
-const bot2 = require('../MusicBots/musicbot1')
+const bot1 = require('MusicBots/musicbot')
+const bot2 = require('MusicBots/musicbot1')
 const DB = require('./dbhandlers')
 const ytdl = require('ytdl-core');
 const Discord = require('discord.js');
