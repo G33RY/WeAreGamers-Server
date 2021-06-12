@@ -36,7 +36,7 @@
     "jimp": "^0.6.0",
     "localStorage": "^1.0.4",
     "moment": "^2.24.0",
-    "mongoose": "^5.4.15",
+    "mongoose": "^5.7.5",
     "mongoose-ttl": "0.0.3",
     "node-fetch": "^2.3.0",
     "node-opus": "^0.3.1",
