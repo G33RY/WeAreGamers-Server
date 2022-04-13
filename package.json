@@ -12,7 +12,7 @@
     "@ffmpeg-installer/ffmpeg": "^1.0.17",
     "@google-cloud/speech": "^2.3.0",
     "add-text-to-image": "^1.0.1",
-    "async": "^2.6.1",
+    "async": "^3.2.2",
     "btoa": "^1.2.1",
     "child_process": "^1.0.2",
     "cleverbot.io": "^1.0.4",
