@@ -24,7 +24,7 @@
     "email-validator": "^2.0.4",
     "events": "^3.0.0",
     "execa": "^1.0.0",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "ffmpeg": "0.0.4",
     "ffmpeg-binaries": "^4.0.0",
     "fluent-ffmpeg": "^2.1.2",
